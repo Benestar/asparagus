@@ -1,0 +1,28 @@
+{
+	"name": "benestar/asparagus",
+	"type": "library",
+	"description": "SPARQL abstraction layer for PHP",
+	"keywords": [
+		"abstraction layer",
+		"asparagus",
+		"SPARQL"
+	],
+	"homepage": "https://github.com/benestar/Asparagus",
+	"license": "GNU GPL v2+",
+	"authors": [
+		{
+			"name": "Bene*",
+			"email": "benestar.wikimedia@gmail.com"
+		}
+	],
+	"require": {
+		"php": ">=5.3.0",
+        "ext-curl": "*",
+        "ext-json": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"Asparagus\\": "src/"
+		}
+	}
+}
