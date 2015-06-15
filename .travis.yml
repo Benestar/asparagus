@@ -1,0 +1,10 @@
+language: php
+
+php:
+  - 5.3
+
+sudo: false
+
+install: composer install
+
+script: phpunit
