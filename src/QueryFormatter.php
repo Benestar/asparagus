@@ -60,17 +60,17 @@ class QueryFormatter {
 	}
 
 	private function escapeStrings( $string ) {
-		$self = $this;
-		return preg_replace_callback( '/"((\\.|[^\\"])*)"/', function( $match ) use ( $self ) {
-			$self->replacements[md5( $match[0] )] = $match[0];
+		$replacements = &$this->replacements;
+		return preg_replace_callback( '/"((\\.|[^\\"])*)"/', function( $match ) use ( &$replacements ) {
+			$replacements[md5( $match[0] )] = $match[0];
 			return md5( $match[0] );
 		}, $string );
 	}
 
 	private function escapeIRIs( $string ) {
-		$self = $this;
-		return preg_replace_callback( '/\<((\\.|[^\\<])*)\>/', function( $match ) use ( $self ) {
-			$self->replacements[md5( $match[0] )] = $match[0];
+		$replacements = &$this->replacements;
+		return preg_replace_callback( '/\<((\\.|[^\\<])*)\>/', function( $match ) use ( &$replacements ) {
+			$replacements[md5( $match[0] )] = $match[0];
 			return md5( $match[0] );
 		}, $string );
 	}

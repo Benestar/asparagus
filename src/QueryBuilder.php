@@ -286,10 +286,10 @@ class QueryBuilder {
 	}
 
 	private function getModifiers() {
-		$self = $this;
-		return implode( array_map( function( $key ) use ( $self ) {
-			if ( isset( $self->modifiers[$key] ) ) {
-				return ' ' . $key . ' ' . $self->modifiers[$key];
+		$modifiers = $this->modifiers;
+		return implode( array_map( function( $key ) use ( $modifiers ) {
+			if ( isset( $modifiers[$key] ) ) {
+				return ' ' . $key . ' ' . $modifiers[$key];
 			}
 		}, array( 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT', 'OFFSET' ) ) );
 	}
