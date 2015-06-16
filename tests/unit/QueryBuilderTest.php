@@ -5,7 +5,7 @@ namespace Asparagus\Tests;
 use Asparagus\QueryBuilder;
 
 /**
- * @covers SPARQL\QueryBuilder
+ * @covers Asparagus\QueryBuilder
  *
  * @license GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
