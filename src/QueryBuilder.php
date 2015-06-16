@@ -3,10 +3,12 @@
 namespace Asparagus;
 
 use InvalidArgumentException;
-use OutOfBoundsException;
 
 /**
  * Abstraction layer to build SPARQL queries
+ *
+ * Nested filters not supported
+ * Supports SPARQL v1.0 (v1.1 to come)
  *
  * @since 0.1
  *
@@ -16,9 +18,9 @@ use OutOfBoundsException;
 class QueryBuilder {
 
 	/**
-	 * @var string[] map of prefixes to IRIs
+	 * @var QueryPrefixBuilder
 	 */
-	private $prefixes = array();
+	private $prefixBuilder;
 
 	/**
 	 * @var string[] list of variables to select
@@ -36,42 +38,28 @@ class QueryBuilder {
 	private $conditions = array();
 
 	/**
-	 * @var string[] list of modifiers including limit, offset and order by
+	 * @var QueryModifierBuilder
 	 */
-	private $modifiers = array();
+	private $modifierBuilder;
 
 	/**
-	 * @var string[] $prefxies
+	 * @var string[] $prefixes
 	 */
 	public function __construct( array $prefixes = array() ) {
-		$this->prefix( $prefixes );
+		$this->prefixBuilder = new QueryPrefixBuilder( $prefixes );
+		$this->modifierBuilder = new QueryModifierBuilder();
 	}
 
 	/**
 	 * Adds a prefix for the given IRI.
 	 *
-	 * @param string|array $prefix
+	 * @param string|string[] $prefix
 	 * @param string|null $iri
 	 * @return self
-	 * @throws InvalidArgumentException
-	 * @throws OutOfBoundsException
 	 */
 	public function prefix( $prefix, $iri = null ) {
 		$prefixes = is_array( $prefix ) ? $prefix : array( $prefix => $iri );
-
-		foreach ( $prefixes as $prefix => $iri ) {
-			// @todo better string validation
-			if ( !is_string( $prefix ) || !is_string( $iri ) ) {
-				throw new InvalidArgumentException( '$prefix and $iri have to be strings' );
-			}
-
-			if ( isset( $this->prefixes[$prefix] ) ) {
-				throw new OutOfBoundsException( 'Prefix ' . $prefix . ' is already set.' );
-			}
-
-			$this->prefixes[$prefix] = $iri;
-		}
-
+		$this->prefixBuilder->prefixes( $prefixes );
 		return $this;
 	}
 
@@ -149,6 +137,30 @@ class QueryBuilder {
 		return $this;
 	}
 
+	public function filter( $filter ) {
+		return $this;
+	}
+
+	public function filterExists( $condition ) {
+		return $this;
+	}
+
+	public function filterNotExists( $condition ) {
+		return $this;
+	}
+
+	public function optional( $optional ) {
+		return $this;
+	}
+
+	public function union( $condition ) {
+		return $this;
+	}
+
+	public function minus( $condition ) {
+		
+	}
+
 	/**
 	 * Sets the GROUP BY modifier.
 	 *
@@ -157,13 +169,7 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function groupBy( $variable )  {
-		// @todo better string validation
-		if ( !is_string( $variable ) ) {
-			throw new InvalidArgumentException( '$variable has to be a string' );
-		}
-
-		$this->modifiers['GROUP BY'] = '?' . $variable;
-
+		$this->modifierBuilder->groupBy( $variable );
 		return $this;
 	}
 
@@ -174,13 +180,7 @@ class QueryBuilder {
 	 * @return self
 	 */
 	public function having( $expression ) {
-		// @todo better string validation
-		if ( !is_string( $expression ) ) {
-			throw new InvalidArgumentException( '$expression has to be a string' );
-		}
-
-		$this->modifiers['HAVING'] = $expression;
-
+		$this->modifierBuilder->having( $expression );
 		return $this;
 	}
 
@@ -193,18 +193,7 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function orderBy( $variable, $direction = 'ASC' ) {
-		// @todo better string validation
-		if ( !is_string( $variable ) ) {
-			throw new InvalidArgumentException( '$variable has to be a string' );
-		}
-
-		// @todo also allow lower case
-		if ( !in_array( $direction, array( 'ASC', 'DESC' ) ) ) {
-			throw new InvalidArgumentException( '$direction has to be either ASC or DESC' );
-		}
-
-		$this->modifiers['ORDER BY'] = '?' . $variable . ' ' . $direction;
-
+		$this->modifierBuilder->orderBy( $variable, $direction );
 		return $this;
 	}
 
@@ -216,12 +205,7 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function limit( $limit ) {
-		if ( !is_int( $limit ) ) {
-			throw new InvalidArgumentException( '$limit has to be an integer' );
-		}
-
-		$this->modifiers['LIMIT'] = $limit;
-
+		$this->modifierBuilder->limit( $limit );
 		return $this;
 	}
 
@@ -233,12 +217,7 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function offset( $offset ) {
-		if ( !is_int( $offset ) ) {
-			throw new InvalidArgumentException( '$offset has to be an integer' );
-		}
-
-		$this->modifiers['OFFSET'] = $offset;
-
+		$this->modifierBuilder->offset( $offset );
 		return $this;
 	}
 
@@ -253,20 +232,14 @@ class QueryBuilder {
 			throw new InvalidArgumentException( '$includePrefixes has to be a bool' );
 		}
 
-		$sparql = $includePrefixes ? $this->getPrefixes() : '';
+		$sparql = $includePrefixes ? $this->prefixBuilder->getPrefixes() : '';
 		$sparql .= 'SELECT ' . $this->getVariables() . ' WHERE {';
 		$sparql .= $this->getSubqueries();
 		$sparql .= $this->getConditions();
 		$sparql .= '}';
-		$sparql .= $this->getModifiers();
+		$sparql .= $this->modifierBuilder->getModifiers();
 
 		return $sparql;
-	}
-
-	private function getPrefixes() {
-		return implode( array_map( function( $prefix, $iri ) {
-			return 'PREFIX ' . $prefix . ': <' . $iri . '> '; 
-		}, $this->prefixes ) );
 	}
 
 	private function getVariables() {
@@ -283,15 +256,6 @@ class QueryBuilder {
 		return implode( array_map( function( $condition ) {
 			return ' ' . $condition;
 		}, $this->conditions ) );
-	}
-
-	private function getModifiers() {
-		$modifiers = $this->modifiers;
-		return implode( array_map( function( $key ) use ( $modifiers ) {
-			if ( isset( $modifiers[$key] ) ) {
-				return ' ' . $key . ' ' . $modifiers[$key];
-			}
-		}, array( 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT', 'OFFSET' ) ) );
 	}
 
 	/**

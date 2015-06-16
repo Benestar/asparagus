@@ -7,8 +7,6 @@ use RuntimeException;
 /**
  * Package-private class to deal with HTTP related stuff.
  *
- * @since 0.1
- *
  * @license GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
