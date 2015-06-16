@@ -43,9 +43,9 @@ class Http {
 
 		$response = curl_exec( $this->ch );
 
-		if( curl_errno( $this->ch ) ) {
+		if ( curl_errno( $this->ch ) ) {
 			throw new RuntimeException( curl_error( $this->ch ), curl_errno( $this->ch ) );
-		} else if( curl_getinfo( $this->ch, CURLINFO_HTTP_CODE ) >= 400 ) {
+		} else if ( curl_getinfo( $this->ch, CURLINFO_HTTP_CODE ) >= 400 ) {
 			throw new RuntimeException( 'HTTP error: ' . $url, curl_getinfo( $this->ch, CURLINFO_HTTP_CODE ) );
 		}
 

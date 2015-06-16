@@ -100,7 +100,7 @@ class QueryModifierBuilder {
 	 *
 	 * @return string
 	 */
-	public function getModifiers() {
+	public function getSPARQL() {
 		$modifiers = $this->modifiers;
 		return implode( array_map( function( $key ) use ( $modifiers ) {
 			if ( isset( $modifiers[$key] ) ) {

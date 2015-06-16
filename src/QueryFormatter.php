@@ -39,8 +39,7 @@ class QueryFormatter {
 		$this->indentationLevel = 0;
 		$this->replacements = array();
 
-		$sparql = $this->escapeStrings( $sparql );
-		$sparql = $this->escapeIRIs( $sparql );
+		$sparql = $this->escape( $sparql );
 
 		foreach ( $this->split( $sparql ) as $part ) {
 			if ( ctype_space( end( $this->formattedParts ) ) && ctype_space( $part) ) {
@@ -59,17 +58,9 @@ class QueryFormatter {
 		return strtr( implode( $this->formattedParts ), $this->replacements );
 	}
 
-	private function escapeStrings( $string ) {
+	private function escape( $string ) {
 		$replacements = &$this->replacements;
-		return preg_replace_callback( '/"((\\.|[^\\"])*)"/', function( $match ) use ( &$replacements ) {
-			$replacements[md5( $match[0] )] = $match[0];
-			return md5( $match[0] );
-		}, $string );
-	}
-
-	private function escapeIRIs( $string ) {
-		$replacements = &$this->replacements;
-		return preg_replace_callback( '/\<((\\.|[^\\<])*)\>/', function( $match ) use ( &$replacements ) {
+		return preg_replace_callback( '/("((\\.|[^\\"])*)"|\<((\\.|[^\\<])*)\>)/', function( $match ) use ( &$replacements ) {
 			$replacements[md5( $match[0] )] = $match[0];
 			return md5( $match[0] );
 		}, $string );

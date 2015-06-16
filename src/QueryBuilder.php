@@ -59,14 +59,14 @@ class QueryBuilder {
 	 */
 	public function prefix( $prefix, $iri = null ) {
 		$prefixes = is_array( $prefix ) ? $prefix : array( $prefix => $iri );
-		$this->prefixBuilder->prefixes( $prefixes );
+		$this->prefixBuilder->setPrefixes( $prefixes );
 		return $this;
 	}
 
 	/**
 	 * Specifies the variables to select.
 	 *
-	 * @param array|string $variables
+	 * @param string|string[] $variables
 	 * @return self
 	 * @throws InvalidArgumentException
 	 */
@@ -124,7 +124,7 @@ class QueryBuilder {
 	 * @return self
 	 */
 	public function newSubquery() {
-		return new QueryBuilder( $this->prefixes );
+		return new QueryBuilder( $this->prefixBuilder->getPrefixes() );
 	}
 
 	/**
@@ -158,7 +158,7 @@ class QueryBuilder {
 	}
 
 	public function minus( $condition ) {
-		
+		return $this;
 	}
 
 	/**
@@ -232,12 +232,12 @@ class QueryBuilder {
 			throw new InvalidArgumentException( '$includePrefixes has to be a bool' );
 		}
 
-		$sparql = $includePrefixes ? $this->prefixBuilder->getPrefixes() : '';
+		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
 		$sparql .= 'SELECT ' . $this->getVariables() . ' WHERE {';
 		$sparql .= $this->getSubqueries();
 		$sparql .= $this->getConditions();
 		$sparql .= '}';
-		$sparql .= $this->modifierBuilder->getModifiers();
+		$sparql .= $this->modifierBuilder->getSPARQL();
 
 		return $sparql;
 	}

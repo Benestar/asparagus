@@ -22,25 +22,25 @@ class QueryPrefixBuilder {
 	 * @var string[] $prefixes
 	 */
 	public function __construct( array $prefixes = array() ) {
-		$this->prefixes( $prefixes );
+		$this->setPrefixes( $prefixes );
 	}
 
 	/**
-	 * Adds a prefix for the given IRI.
+	 * Sets the prefixes for the given IRIs.
 	 *
 	 * @param string[] $prefixes
 	 * @throws InvalidArgumentException
 	 * @throws OutOfBoundsException
 	 */
-	public function prefixes( array $prefixes ) {
+	public function setPrefixes( array $prefixes ) {
 		foreach ( $prefixes as $prefix => $iri ) {
 			// @todo better string validation
 			if ( !is_string( $prefix ) || !is_string( $iri ) ) {
 				throw new InvalidArgumentException( '$prefix and $iri have to be strings' );
 			}
 
-			if ( isset( $this->prefixes[$prefix] ) ) {
-				throw new OutOfBoundsException( 'Prefix ' . $prefix . ' is already set.' );
+			if ( isset( $this->prefixes[$prefix] ) && $iri !== $this->prefixes[$prefix] ) {
+				throw new OutOfBoundsException( 'Prefix ' . $prefix . ' is already used for <' . $this->prefixes[$prefix] . '>' );
 			}
 
 			$this->prefixes[$prefix] = $iri;
@@ -48,11 +48,26 @@ class QueryPrefixBuilder {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getPrefixes() {
+		return $this->prefixes;
+	}
+
+	/**
+	 * @param string $prefix
+	 * @return bool
+	 */
+	public function hasPrefix( $prefix ) {
+		return isset( $this->prefixes[$prefix] );
+	}
+
+	/**
 	 * Returns the plain SPARQL string of these prefixes.
 	 *
 	 * @return string
 	 */
-	public function getPrefixes() {
+	public function getSPARQL() {
 		return implode( array_map( function( $prefix, $iri ) {
 			return 'PREFIX ' . $prefix . ': <' . $iri . '> '; 
 		}, $this->prefixes ) );
