@@ -12,7 +12,7 @@ SELECT ?p    ?w     ?l     ?wl   WHERE
 
 
 
-		     		{
+		     		{				
 	wd:Q30
 p:P6/v:P6       ?p .	?p wdt:P26 ?w .
 	OPTIONAL

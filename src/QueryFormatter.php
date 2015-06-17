@@ -42,10 +42,6 @@ class QueryFormatter {
 		$sparql = $this->escape( $sparql );
 
 		foreach ( $this->split( $sparql ) as $part ) {
-			if ( ctype_space( end( $this->formattedParts ) ) && ctype_space( $part) ) {
-				continue;
-			}
-
 			if ( !empty( $this->formattedParts ) ) {
 				$this->before( $part );
 			}
@@ -91,7 +87,7 @@ class QueryFormatter {
 			$this->formattedParts[] = "\n\n";
 		}
 
-		if ( in_array( strtoupper( $part ), array( '.', '=', '(', '<', '{', '?', '$' ) ) ) {
+		if ( in_array( $part, array( '.', '=', '(', '<', '{', '?', '$' ) ) ) {
 			if ( end( $this->formattedParts ) !== "\n" ) {
 				$this->trimEnd();
 				$this->append( ' ' );
@@ -100,22 +96,24 @@ class QueryFormatter {
 	}
 
 	private function indentation( $part ) {
-		if ( $part === '{' ) {
-			$this->indentationLevel++;
-		}
-
 		if ( $part === '}' ) {
 			$this->indentationLevel--;
 		}
 
-		if ( substr( end( $this->formattedParts ), 0, 1 ) === "\n" ) {
+		if ( !ctype_space( $part ) && substr( end( $this->formattedParts ), 0, 1 ) === "\n" ) {
 			$this->formattedParts[] = str_repeat( "\t", $this->indentationLevel );
+		}
+
+		if ( $part === '{' ) {
+			$this->indentationLevel++;
 		}
 	}
 
 	private function append( $part ) {
 		if ( ctype_space( $part ) ) {
-			if ( end( $this->formattedParts ) !== '(' ) {
+			if ( !ctype_space( end( $this->formattedParts ) ) &&
+				end( $this->formattedParts ) !== '('
+			) {
 				$this->formattedParts[] = ' ';
 			}
 		} else {
@@ -124,7 +122,7 @@ class QueryFormatter {
 	}
 
 	private function after( $part ) {
-		if ( $part === '{' || $part === '}' || $part === '.'  ) {
+		if ( in_array( $part, array( '{', '}', '.' ) ) ) {
 			$this->formattedParts[] = "\n";
 		}
 
