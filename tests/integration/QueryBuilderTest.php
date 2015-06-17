@@ -10,7 +10,7 @@ use Asparagus\QueryBuilder;
  */
 class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 
-	static $prefixes = array(
+	private static $prefixes = array(
 		'test' => 'http://www.example.com/test#'
 	);
 

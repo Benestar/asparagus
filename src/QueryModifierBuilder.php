@@ -20,7 +20,7 @@ class QueryModifierBuilder {
 	/**
 	 * Sets the GROUP BY modifier.
 	 *
-	 * @param type $variable
+	 * @param string $variable
 	 * @throws InvalidArgumentException
 	 */
 	public function groupBy( $variable )  {

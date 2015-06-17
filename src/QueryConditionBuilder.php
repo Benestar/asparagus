@@ -15,7 +15,7 @@ use InvalidArgumentException;
 class QueryConditionBuilder {
 
 	/**
-	 * @var string[] list of conditions
+	 * @var array nested list of conditions, grouped by subject and predicate
 	 */
 	private $conditions = array();
 
