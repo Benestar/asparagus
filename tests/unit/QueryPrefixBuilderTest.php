@@ -5,7 +5,7 @@ namespace Asparagus\Tests;
 use Asparagus\QueryPrefixBuilder;
 
 /**
- * @covers QueryPrefixBuilder
+ * @covers Asparagus\QueryPrefixBuilder
  *
  * @license GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
