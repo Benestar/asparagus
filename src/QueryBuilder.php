@@ -264,7 +264,7 @@ class QueryBuilder {
 	/**
 	 * Returns the formatted SPARQL string of this query.
 	 *
-	 * @see QueryFormatter
+	 * @see QueryFormatter::format
 	 *
 	 * @return string
 	 */
