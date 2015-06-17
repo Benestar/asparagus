@@ -16,27 +16,27 @@ class ExpressionValidator {
 	/**
 	 * Accept all expressions
 	 */
-	const VALIDATE_ALL = 0b1111;
+	const VALIDATE_ALL = 16;
 
 	/**
 	 * Accept variables
 	 */
-	const VALIDATE_VARIABLE = 0b1;
+	const VALIDATE_VARIABLE = 1;
 
 	/**
 	 * Accept IRIs
 	 */
-	const VALIDATE_IRI = 0b10;
+	const VALIDATE_IRI = 2;
 
 	/**
 	 * Accept prefixed IRIs
 	 */
-	const VALIDATE_PREFIXED_IRI = 0b100;
+	const VALIDATE_PREFIXED_IRI = 4;
 
 	/**
 	 * Accept prefixes
 	 */
-	const VALIDATE_PREFIX = 0b1000;
+	const VALIDATE_PREFIX = 8;
 
 	/**
 	 * @var string[]

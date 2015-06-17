@@ -238,7 +238,8 @@ class QueryBuilder {
 		$definedPrefixes = array_keys( $this->prefixBuilder->getPrefixes() );
 		$usedPrefixes = array_merge( $this->conditionBuilder->getPrefixes(), $this->modifierBuilder->getPrefixes() );
 
-		if ( !empty( $diff = array_diff( $usedPrefixes, $definedPrefixes ) ) ) {
+		$diff = array_diff( $usedPrefixes, $definedPrefixes );
+		if ( !empty( $diff ) ) {
 			throw new Exception( 'The prefixes ' . implode( ' ', $diff ) . ' aren\'t defined for this query.' );
 		}
 	}
@@ -247,7 +248,8 @@ class QueryBuilder {
 		$definedVariables = $this->conditionBuilder->getVariables();
 		$usedVariables = array_merge( $this->variables, $this->modifierBuilder->getVariables() );
 
-		if ( !empty( $diff = array_diff( $usedVariables, $definedVariables ) ) ) {
+		$diff = array_diff( $usedVariables, $definedVariables );
+		if ( !empty( $diff ) ) {
 			throw new Exception( 'The variables ' . implode( ' ', $diff ) . ' don\'t occur in this query.' );
 		}
 	}
