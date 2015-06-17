@@ -83,14 +83,8 @@ class QueryConditionBuilder {
 
 	private function formatPredicates( array $predicates ) {
 		return implode( ' ;', array_map( function( $predicate, $objects ) {
-			return ' ' . $predicate . $this->formatObjects( $objects );
+			return ' ' . $predicate . ' ' . implode( ' , ', $objects );
 		}, array_keys( $predicates ), $predicates ) );
-	}
-
-	private function formatObjects( array $objects ) {
-		return implode( ' ,', array_map( function( $object ) {
-			return ' ' . $object;
-		}, $objects ) );
 	}
 
 }
