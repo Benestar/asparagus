@@ -1,6 +1,6 @@
 <?php
 
-namespace Asparagus\Test;
+namespace Asparagus\Tests;
 
 use Asparagus\QueryBuilder;
 use Asparagus\QueryExecuter;
