@@ -88,7 +88,7 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ## Release notes
 
-### 0.1 (dev)
+### 0.1 (2015-06-17)
 
 Initial release with these features:
 
