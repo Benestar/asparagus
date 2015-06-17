@@ -1,0 +1,11 @@
+PREFIX wd:<http://www.wikidata.org/entity/>PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX v: <http://www.wikidata.org/prop/statement/>
+
+SELECT?p?w?l?wl WHERE{wd:Q30 p:P6/v:P6 ?p.
+	?p wdt:P26 ?w .
+	OPTIONAL {?p rdfs:label ?l FILTER(LANG(?l)="en") .
+	}OPTIONAL{
+		?w rdfs:label ?wl FILTER(LANG(?wl)="en") .
+}}
