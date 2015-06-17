@@ -70,7 +70,7 @@ class QueryPrefixBuilder {
 	public function getSPARQL() {
 		return implode( array_map( function( $prefix, $iri ) {
 			return 'PREFIX ' . $prefix . ': <' . $iri . '> '; 
-		}, $this->prefixes ) );
+		}, array_keys( $this->prefixes ), $this->prefixes ) );
 	}
 
 }

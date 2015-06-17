@@ -1,0 +1,7 @@
+PREFIX test: <http://www.example.com/test#>
+
+SELECT ?name ?email WHERE {
+	?person test:name ?name ;
+		test:email ?email .
+}
+LIMIT 10

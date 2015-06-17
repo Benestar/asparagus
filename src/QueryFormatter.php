@@ -55,14 +55,19 @@ class QueryFormatter {
 			$this->after( $part );
 		}
 
+		$this->trimEnd();
+		$this->formattedParts[] = "\n";
+
 		return strtr( implode( $this->formattedParts ), $this->replacements );
 	}
 
 	private function escape( $string ) {
 		$replacements = &$this->replacements;
+		// @todo this is not completely safe but works in most cases
 		return preg_replace_callback( '/("((\\.|[^\\"])*)"|\<((\\.|[^\\<])*)\>)/', function( $match ) use ( &$replacements ) {
-			$replacements[md5( $match[0] )] = $match[0];
-			return md5( $match[0] );
+			$key = '<' . md5( $match[0] ) . '>';
+			$replacements[$key] = $match[0];
+			return $key;
 		}, $string );
 	}
 
@@ -77,10 +82,12 @@ class QueryFormatter {
 
 	private function before( $part ) {
 		if ( $part === 'PREFIX' ) {
+			$this->trimEnd();
 			$this->formattedParts[] = "\n";
 		}
 
 		if ( $part === 'SELECT' ) {
+			$this->trimEnd();
 			$this->formattedParts[] = "\n\n";
 		}
 
@@ -100,7 +107,7 @@ class QueryFormatter {
 			$this->indentationLevel--;
 		}
 
-		if ( end( $this->formattedParts ) === "\n" ) {
+		if ( substr( end( $this->formattedParts ), 0, 1 ) === "\n" ) {
 			$this->formattedParts[] = str_repeat( "\t", $this->indentationLevel );
 		}
 	}
@@ -110,8 +117,18 @@ class QueryFormatter {
 	}
 
 	private function after( $part ) {
-		if ( $part === '{' || $part === '}' || $part === '.' ) {
+		if ( $part === '{' || $part === '}' || $part === '.'  ) {
 			$this->formattedParts[] = "\n";
+		}
+
+		if ( $part === ';' ) {
+			$this->formattedParts[] = "\n\t";
+		}
+	}
+
+	private function trimEnd() {
+		while ( ctype_space( end( $this->formattedParts ) ) ) {
+			array_pop( $this->formattedParts );
 		}
 	}
 

@@ -17,8 +17,8 @@ class QueryFormatterTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testFormat( $input, $output ) {
 		$formatter = new QueryFormatter();
-		$sparql = file_get_contents( __DIR__ . '/../data/' . $input . '.rq' );
-		$expected = file_get_contents( __DIR__ . '/../data/' . $output . '.rq', FILE_TEXT );
+		$sparql = file_get_contents( __DIR__ . '/../data/unit_' . $input . '.rq' );
+		$expected = file_get_contents( __DIR__ . '/../data/unit_' . $output . '.rq' );
 
 		$this->assertEquals( $expected, $formatter->format( $sparql ) );
 	}

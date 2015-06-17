@@ -33,9 +33,9 @@ class QueryBuilder {
 	private $subqueries = array();
 
 	/**
-	 * @var string[] list of conditions
+	 * @var QueryConditionBuilder
 	 */
-	private $conditions = array();
+	private $conditionBuilder;
 
 	/**
 	 * @var QueryModifierBuilder
@@ -47,6 +47,7 @@ class QueryBuilder {
 	 */
 	public function __construct( array $prefixes = array() ) {
 		$this->prefixBuilder = new QueryPrefixBuilder( $prefixes );
+		$this->conditionBuilder = new QueryConditionBuilder();
 		$this->modifierBuilder = new QueryModifierBuilder();
 	}
 
@@ -128,43 +129,42 @@ class QueryBuilder {
 	}
 
 	/**
+	 * Adds the given triple as a condition.
+	 *
+	 * @param string $subject
+	 * @param string $predicate
+	 * @param string $object
 	 * @return self
 	 */
-	public function where( $condition ) {
-		// @todo
-		$this->conditions[] = $condition;
-
+	public function where( $subject, $predicate, $object ) {
+		$this->conditionBuilder->where( $subject, $predicate, $object );
 		return $this;
 	}
 
-	public function filter( $filter ) {
-		return $this;
-	}
-
-	public function filterExists( $condition ) {
-		return $this;
-	}
-
-	public function filterNotExists( $condition ) {
-		return $this;
-	}
-
-	public function optional( $optional ) {
-		return $this;
-	}
-
-	public function union( $condition ) {
-		return $this;
-	}
-
-	public function minus( $condition ) {
+	/**
+	 * Adds the given triple/double/single value as an additional condition
+	 * to the previously added condition.
+	 *
+	 * @param string $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
+	 * @return self
+	 */
+	public function plus( $subject, $predicate = null, $object = null ) {
+		if ( $predicate === null ) {
+			$this->conditionBuilder->plus( null, null, $subject );
+		} else if ( $object === null ) {
+			$this->conditionBuilder->plus( null, $subject, $predicate );
+		} else {
+			$this->conditionBuilder->plus( $subject, $predicate, $object );
+		}
 		return $this;
 	}
 
 	/**
 	 * Sets the GROUP BY modifier.
 	 *
-	 * @param type $variable
+	 * @param string $variable
 	 * @return self
 	 * @throws InvalidArgumentException
 	 */
@@ -235,7 +235,7 @@ class QueryBuilder {
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
 		$sparql .= 'SELECT ' . $this->getVariables() . ' WHERE {';
 		$sparql .= $this->getSubqueries();
-		$sparql .= $this->getConditions();
+		$sparql .= $this->conditionBuilder->getSPARQL();
 		$sparql .= '}';
 		$sparql .= $this->modifierBuilder->getSPARQL();
 
@@ -252,12 +252,6 @@ class QueryBuilder {
 		}, $this->subqueries ) );
 	}
 
-	private function getConditions() {
-		return implode( array_map( function( $condition ) {
-			return ' ' . $condition;
-		}, $this->conditions ) );
-	}
-
 	/**
 	 * @see self::getSPARQL
 	 *
@@ -265,6 +259,18 @@ class QueryBuilder {
 	 */
 	public function __toString() {
 		return $this->getSPARQL();
+	}
+
+	/**
+	 * Returns the formatted SPARQL string of this query.
+	 *
+	 * @see QueryFormatter
+	 *
+	 * @return string
+	 */
+	public function format() {
+		$formatter = new QueryFormatter();
+		return $formatter->format( $this->getSPARQL() );
 	}
 
 }
