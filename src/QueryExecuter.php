@@ -32,15 +32,16 @@ class QueryExecuter {
 	/**
 	 * @param string $url
 	 * @param string[] $options one of queryParam, formatParam or userAgent
+	 * @param Http|null $http
 	 */
-	public function __construct( $url, array $options = array() ) {
+	public function __construct( $url, array $options = array(), Http $http = null ) {
 		$this->url = $url;
 		$this->options = array_merge( array(
 			'queryParam' => 'query',
 			'formatParam' => 'format',
 			'userAgent' => 'Asparagus/Asparagus 0.1'
 		), $options );
-		$this->http = new Http( $this->options['userAgent'] );
+		$this->http = $http ?: new Http( $this->options['userAgent'] );
 	}
 
 	/**
