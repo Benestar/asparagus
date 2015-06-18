@@ -32,7 +32,7 @@ class QueryPrefixBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testSetPrefixes_invalidIRI() {
 		$prefixBuilder = new QueryPrefixBuilder();
-		$this->setExpectedException( 'UnexpectedValueException' );
+		$this->setExpectedException( 'InvalidArgumentException' );
 
 		$prefixBuilder->setPrefixes( array( 'bar' => null ) );
 	}

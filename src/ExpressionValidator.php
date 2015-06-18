@@ -3,7 +3,6 @@
 namespace Asparagus;
 
 use InvalidArgumentException;
-use UnexpectedValueException;
 
 /**
  * Package-private class to validate expressions like variables and IRIs.
@@ -16,7 +15,7 @@ class ExpressionValidator {
 	/**
 	 * Accept all expressions
 	 */
-	const VALIDATE_ALL = 16;
+	const VALIDATE_ALL = 64;
 
 	/**
 	 * Accept variables
@@ -39,6 +38,31 @@ class ExpressionValidator {
 	const VALIDATE_PREFIX = 8;
 
 	/**
+	 * Accept functions
+	 */
+	const VALIDATE_FUNCTION = 16;
+
+	/**
+	 * Accept functions with variable assignments
+	 */
+	const VALIDATE_FUNCTION_AS = 32;
+
+	/**
+	 * @var string[]
+	 */
+	private static $functions = array(
+		'COUNT', 'SUM', 'MIN', 'MAX', 'AVG', 'SAMPLE', 'GROUP_CONCAT', 'STR',
+		'LANG', 'LANGMATCHES', 'DATATYPE', 'BOUND', 'IRI', 'URI', 'BNODE',
+		'RAND', 'ABS', 'CEIL', 'FLOOR', 'ROUND', 'CONCAT', 'STRLEN', 'UCASE',
+		'LCASE', 'ENCODE_FOR_URI', 'CONTAINS', 'STRSTARTS', 'STRENDS',
+		'STRBEFORE', 'STRAFTER', 'YEAR', 'MONTH', 'DAY', 'HOURS', 'MINUTES',
+		'SECONDS', 'TIMEZONE', 'TZ', 'NOW', 'UUID', 'STRUUID', 'MD5', 'SHA1',
+		'SHA256', 'SHA384', 'SHA512', 'COALESCE', 'IF', 'STRLANG', 'STRDT',
+		'sameTerm', 'isIRI', 'isURI', 'isBLANK', 'isLITERAL', 'isNUMERIC',
+		'REGEX', 'SUBSTR', 'REPLACE', 'EXISTS', 'NOT EXISTS'
+	);
+
+	/**
 	 * @var string[]
 	 */
 	private $variables = array();
@@ -55,7 +79,6 @@ class ExpressionValidator {
 	 * @param string $expression
 	 * @param int $options
 	 * @throws InvalidArgumentException
-	 * @throws UnexpectedValueException
 	 */
 	public function validateExpression( $expression, $options = -1 ) {
 		if ( !is_string( $expression ) ) {
@@ -81,27 +104,56 @@ class ExpressionValidator {
 		}
 
 		if ( ( $options & self::VALIDATE_PREFIX ) && $this->isPrefix( $expression ) ) {
-			$this->prefixes[substr( $expression, 0, strpos( $expression, ':' ) )] = true;
+			$this->prefixes[$expression] = true;
 			return;
 		}
 
-		throw new UnexpectedValueException( '$expression has to match ' . $options );
+		if ( ( $options & self::VALIDATE_FUNCTION ) && $this->isFunction( $expression ) ) {
+			// @todo track prefixes and variables (using regex?)
+			return;
+		}
+
+		if ( ( $options & self::VALIDATE_FUNCTION_AS ) && $this->isFunctionAs( $expression ) ) {
+			// @todo track prefixes and variables (using regex?)
+			return;
+		}
+
+		throw new InvalidArgumentException( '$expression has to match ' . $options );
 	}
 
+	private static $variable = '[?$][A-Za-z_]+';
+	private static $iri = '\<((\\.|[^\\<])+)\>';
+	private static $prefix = '[A-Za-z_]+';
+	private static $name = '[A-Za-z_0-9:]+';
+
 	private function isVariable( $expression ) {
-		return preg_match( '/^[?$][A-Za-z_]+$/', $expression );
+		return $this->matchesRegex( self::$variable, $expression );
 	}
 
 	private function isIRI( $expression ) {
-		return preg_match( '/^\<((\\.|[^\\<])+)\>$/', $expression );
+		return $expression === 'a' || $this->matchesRegex( self::$iri, $expression );
 	}
 
 	private function isPrefixedIRI( $expression ) {
-		return preg_match( '/^[A-Za-z_]+:[A-Za-z_0-9:]*$/', $expression );
+		return $this->matchesRegex( self::$prefix . ':' . self::$name, $expression );
 	}
 
 	private function isPrefix( $expression ) {
-		return preg_match( '/^[A-Za-z_]+$/', $expression );
+		return $this->matchesRegex( self::$prefix, $expression );
+	}
+
+	private function isFunction( $expression ) {
+		// @todo also support expressions like ?a + ?b > 5 or ?x <= ?y
+		// @todo this might not be complete
+		return $this->matchesRegex( '(\d|\w|' . self::$variable . '|' . implode( '|', self::$functions ) . ').*', $expression );
+	}
+
+	private function isFunctionAs( $expression ) {
+		return $this->matchesRegex( '(\d|\w|' . self::$variable . '|' . implode( '|', self::$functions ) . ') AS ' . self::$variable, $expression );
+	}
+
+	private function matchesRegex( $regex, $expression ) {
+		return preg_match( '/^' . $regex . '$/', $expression );
 	}
 
 	/**

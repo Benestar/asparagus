@@ -42,8 +42,7 @@ class QueryModifierBuilder {
 	 * @param string $expression
 	 */
 	public function having( $expression ) {
-		// @todo this isn't right :S
-		$this->expressionValidator->validateExpression( $expression, ExpressionValidator::VALIDATE_VARIABLE );
+		$this->expressionValidator->validateExpression( $expression, ExpressionValidator::VALIDATE_FUNCTION );
 		$this->modifiers['HAVING'] = '(' . $expression . ')';
 	}
 
@@ -55,7 +54,10 @@ class QueryModifierBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function orderBy( $expression, $direction = 'ASC' ) {
-		$this->expressionValidator->validateExpression( $expression, ExpressionValidator::VALIDATE_VARIABLE );
+		$this->expressionValidator->validateExpression( $expression,
+			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION
+		);
+
 		$direction = strtoupper( $direction );
 
 		if ( !in_array( $direction, array( 'ASC', 'DESC' ) ) ) {

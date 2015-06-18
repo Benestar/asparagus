@@ -2,12 +2,10 @@
 
 namespace Asparagus;
 
-use InvalidArgumentException;
-
 /**
  * Package-private class to build the conditions of a SPARQL query.
  *
- * @todo support filter, filterExists, filterNotExists, optional, union, minus
+ * @todo support filter, optional, union, minus
  *
  * @license GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >

@@ -81,7 +81,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->having( '?test' )
+			$queryBuilder->having( 'AVG(?size) > 10' )
 		);
 	}
 
