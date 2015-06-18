@@ -17,7 +17,7 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testValidate_validExpressions( $expression, $options, array $variables, array $prefixes ) {
 		$expressionValidator = new ExpressionValidator();
-		$expressionValidator->validateExpression( $expression, $options );
+		$expressionValidator->validate( $expression, $options );
 
 		$this->assertEquals( $variables, $expressionValidator->getVariables() );
 		$this->assertEquals( $prefixes, $expressionValidator->getPrefixes() );
@@ -40,31 +40,31 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideInvalidExpressions
 	 */
-	public function testValidate_invalidExpressions( $expression, $options ) {
+	public function testValidate_invalidExpressions( $expression, $options, $errorMessage ) {
 		$expressionValidator = new ExpressionValidator();
-		$this->setExpectedException( 'UnexpectedValueException' );
+		$this->setExpectedException( 'UnexpectedValueException', $errorMessage );
 
-		$expressionValidator->validateExpression( $expression, $options );
+		$expressionValidator->validate( $expression, $options );
 	}
 
 	public function provideInvalidExpressions() {
 		return array(
-			array( 'nyan', ExpressionValidator::VALIDATE_VARIABLE ),
-			array( 'http://www.example.com/test#', ExpressionValidator::VALIDATE_IRI ),
-			array( '<http://www.example.com/test#', ExpressionValidator::VALIDATE_IRI ),
-			array( '<abc><>', ExpressionValidator::VALIDATE_IRI ),
-			array( 'foobar', ExpressionValidator::VALIDATE_PREFIXED_IRI ),
-			array( 'test:Foo:Bar', ExpressionValidator::VALIDATE_PREFIXED_IRI ),
-			array( 'ab:cd', ExpressionValidator::VALIDATE_PREFIX ),
-			array( 'ab/cd', ExpressionValidator::VALIDATE_PREFIX ),
-			array( 'ab cd', ExpressionValidator::VALIDATE_PREFIX ),
-			array( 'foobar (?x > ?y)', ExpressionValidator::VALIDATE_FUNCTION ),
-			array( '(RAND ())', ExpressionValidator::VALIDATE_FUNCTION ),
-			array( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION_AS ),
-			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION_AS ),
-			array( ' AS ?abc', ExpressionValidator::VALIDATE_FUNCTION_AS ),
-			array( '', ExpressionValidator::VALIDATE_ALL ),
-			array( '     ', ExpressionValidator::VALIDATE_ALL ),
+			array( 'nyan', ExpressionValidator::VALIDATE_VARIABLE, 'variable' ),
+			array( 'http://www.example.com/test#', ExpressionValidator::VALIDATE_IRI, 'IRI' ),
+			array( '<http://www.example.com/test#', ExpressionValidator::VALIDATE_IRI, 'IRI' ),
+			array( '<abc><>', ExpressionValidator::VALIDATE_IRI, 'IRI' ),
+			array( 'foobar', ExpressionValidator::VALIDATE_PREFIXED_IRI, 'prefixed IRI' ),
+			array( 'test:Foo:Bar', ExpressionValidator::VALIDATE_PREFIXED_IRI, 'prefixed IRI' ),
+			array( 'ab:cd', ExpressionValidator::VALIDATE_PREFIX, 'prefix' ),
+			array( 'ab/cd', ExpressionValidator::VALIDATE_PREFIX, 'prefix' ),
+			array( 'ab cd', ExpressionValidator::VALIDATE_PREFIX, 'prefix' ),
+			array( 'foobar (?x > ?y)', ExpressionValidator::VALIDATE_FUNCTION, 'function' ),
+			array( '(RAND ())', ExpressionValidator::VALIDATE_FUNCTION, 'function' ),
+			array( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),
+			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),
+			array( ' AS ?abc', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),
+			array( '', ExpressionValidator::VALIDATE_ALL, 'variable' ),
+			array( '     ', ExpressionValidator::VALIDATE_ALL, 'variable' ),
 		);
 	}
 
@@ -72,7 +72,7 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 		$expressionValidator = new ExpressionValidator();
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		$expressionValidator->validateExpression( null );
+		$expressionValidator->validate( null );
 	}
 
 }

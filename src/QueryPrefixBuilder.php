@@ -44,8 +44,8 @@ class QueryPrefixBuilder {
 				throw new InvalidArgumentException( '$iri has to be a string' );
 			}
 
-			$this->expressionValidator->validateExpression( $prefix, ExpressionValidator::VALIDATE_PREFIX );
-			$this->expressionValidator->validateExpression( '<' . $iri . '>', ExpressionValidator::VALIDATE_IRI );
+			$this->expressionValidator->validate( $prefix, ExpressionValidator::VALIDATE_PREFIX );
+			$this->expressionValidator->validate( '<' . $iri . '>', ExpressionValidator::VALIDATE_IRI );
 
 			if ( isset( $this->prefixes[$prefix] ) && $iri !== $this->prefixes[$prefix] ) {
 				throw new OutOfBoundsException( 'Prefix ' . $prefix . ' is already used for <' . $this->prefixes[$prefix] . '>' );

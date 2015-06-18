@@ -16,7 +16,7 @@ class ExpressionValidator {
 	/**
 	 * Accept all expressions
 	 */
-	const VALIDATE_ALL = 64;
+	const VALIDATE_ALL = 63;
 
 	/**
 	 * Accept variables
@@ -102,7 +102,7 @@ class ExpressionValidator {
 	 * @throws InvalidArgumentException
 	 * @throws UnexpectedValueException
 	 */
-	public function validateExpression( $expression, $options = -1 ) {
+	public function validate( $expression, $options = -1 ) {
 		if ( !is_string( $expression ) ) {
 			throw new InvalidArgumentException( '$expression has to be a string.' );
 		}
@@ -111,39 +111,64 @@ class ExpressionValidator {
 			$options = self::VALIDATE_IRI | self::VALIDATE_PREFIXED_IRI | self::VALIDATE_VARIABLE;
 		}
 
+		if ( !$this->matches( $expression, $options ) ) {
+			// @todo better error message
+			throw new UnexpectedValueException( '$expression has to be a ' .
+				implode( ' or a ', $this->getOptionNames( $options ) )
+			);
+		}
+	}
+
+	private function getOptionNames( $options ) {
+		$names = array(
+			'variable' => self::VALIDATE_VARIABLE,
+			'IRI' => self::VALIDATE_IRI,
+			'prefixed IRI' => self::VALIDATE_PREFIXED_IRI,
+			'prefix' => self::VALIDATE_PREFIX,
+			'function' => self::VALIDATE_FUNCTION,
+			'function with variable assignment' => self::VALIDATE_FUNCTION_AS
+		);
+
+		$names = array_filter( $names, function( $key ) use ( $options ) {
+			return $options & $key;
+		} );
+
+		return array_keys( $names );
+	}
+
+	private function matches( $expression, $options ) {
 		if ( ( $options & self::VALIDATE_VARIABLE ) && $this->isVariable( $expression ) ) {
 			$this->trackVariables( $expression );
-			return;
+			return true;
 		}
 
 		if ( ( $options & self::VALIDATE_IRI ) && $this->isIRI( $expression ) ) {
-			return;
+			return true;
 		}
 
 		if ( ( $options & self::VALIDATE_PREFIXED_IRI ) && $this->isPrefixedIRI( $expression ) ) {
 			$this->trackPrefixes( $expression );
-			return;
+			return true;
 		}
 
 		if ( ( $options & self::VALIDATE_PREFIX ) && $this->isPrefix( $expression ) ) {
 			$this->prefixes[$expression] = true;
-			return;
+			return true;
 		}
 
 		if ( ( $options & self::VALIDATE_FUNCTION ) && $this->isFunction( $expression ) ) {
 			$this->trackVariables( $expression );
 			$this->trackPrefixes( $expression );
-			return;
+			return true;
 		}
 
 		if ( ( $options & self::VALIDATE_FUNCTION_AS ) && $this->isFunctionAs( $expression ) ) {
 			$this->trackVariables( $expression );
 			$this->trackPrefixes( $expression );
-			return;
+			return true;
 		}
 
-		// @todo better error message
-		throw new UnexpectedValueException( '$expression has to match ' . $options );
+		return false;
 	}
 
 	private function isVariable( $expression ) {

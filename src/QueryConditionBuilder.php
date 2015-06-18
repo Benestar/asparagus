@@ -44,9 +44,9 @@ class QueryConditionBuilder {
 	 * @param string $object
 	 */
 	public function where( $subject, $predicate, $object ) {
-		$this->expressionValidator->validateExpression( $subject );
-		$this->expressionValidator->validateExpression( $predicate );
-		$this->expressionValidator->validateExpression( $object );
+		$this->expressionValidator->validate( $subject );
+		$this->expressionValidator->validate( $predicate );
+		$this->expressionValidator->validate( $object );
 
 		$this->currentSubject = $subject;
 		$this->currentPredicate = $predicate;
