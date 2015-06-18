@@ -1,13 +1,20 @@
 # Asparagus
 
-[![Build Status](https://secure.travis-ci.org/Benestar/asparagus.png?branch=master)](http://travis-ci.org/Benestar/asparagus)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Benestar/asparagus/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Benestar/asparagus/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/Benestar/asparagus/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Benestar/asparagus/?branch=master)
-[![Download count](https://poser.pugx.org/benestar/asparagus/d/total.png)](https://packagist.org/packages/benestar/asparagus)
-[![License](https://poser.pugx.org/benestar/asparagus/license.svg)](https://packagist.org/packages/benestar/asparagus)
+[![Build Status](https://secure.travis-ci.org/Benestar/asparagus.png?branch=master)]
+(http://travis-ci.org/Benestar/asparagus)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Benestar/asparagus/badges/quality-score.png?b=master)]
+(https://scrutinizer-ci.com/g/Benestar/asparagus/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/Benestar/asparagus/badges/coverage.png?b=master)]
+(https://scrutinizer-ci.com/g/Benestar/asparagus/?branch=master)
+[![Download count](https://poser.pugx.org/benestar/asparagus/d/total.png)]
+(https://packagist.org/packages/benestar/asparagus)
+[![License](https://poser.pugx.org/benestar/asparagus/license.svg)]
+(https://packagist.org/packages/benestar/asparagus)
 
-[![Latest Stable Version](https://poser.pugx.org/benestar/asparagus/version.png)](https://packagist.org/packages/benestar/asparagus)
-[![Latest Unstable Version](https://poser.pugx.org/benestar/asparagus/v/unstable.svg)](//packagist.org/packages/benestar/asparagus)
+[![Latest Stable Version](https://poser.pugx.org/benestar/asparagus/version.png)]
+(https://packagist.org/packages/benestar/asparagus)
+[![Latest Unstable Version](https://poser.pugx.org/benestar/asparagus/v/unstable.svg)]
+(//packagist.org/packages/benestar/asparagus)
 
 **Asparagus** is a SPARQL abstraction layer for PHP. It's design is inspired
 by the DBAL query builder.
@@ -96,9 +103,9 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 * Removed `QueryBuilder::prefix` as prefixes should be defined in the constructor
 * Added more validation for variables and prefixes. `QueryBuilder::getSPARQL` will throw a
   `RangeException` if the validation fails.
-** Selected variables that don't occur in the conditions are detected
-** Prefixes which haven't been declared are detected
-** Variable names and IRIs now have to mach the correct format
+  * Selected variables that don't occur in the conditions are detected
+  * Prefixes which haven't been declared are detected
+  * Variable names and IRIs now have to mach the correct format
 
 ### 0.1 (2015-06-17)
 
