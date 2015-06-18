@@ -111,7 +111,6 @@ class ExpressionValidator {
 		}
 
 		if ( !$this->matches( $expression, $options ) ) {
-			// @todo better error message
 			throw new InvalidArgumentException( '$expression has to be a ' .
 				implode( ' or a ', $this->getOptionNames( $options ) )
 			);
