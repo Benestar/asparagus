@@ -129,14 +129,14 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetSPARQL_undefinedVariable() {
 		$queryBuilder = new QueryBuilder();
-		$this->setExpectedException( 'Exception', '?x' );
+		$this->setExpectedException( 'RangeException', '?x' );
 
 		$queryBuilder->select( '?x' )->getSPARQL();
 	}
 
 	public function testGetSPARQL_undefinedPrefix() {
 		$queryBuilder = new QueryBuilder();
-		$this->setExpectedException( 'Exception', 'foo, nyan' );
+		$this->setExpectedException( 'RangeException', 'foo, nyan' );
 
 		$queryBuilder->where( '?x', 'foo:bar', 'nyan:data' )->getSPARQL();
 	}

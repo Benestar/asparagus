@@ -93,8 +93,8 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 * `QueryBuilder::select`, `QueryBuilder::groupBy` and `QueryBuilder::orderBy` now expect prefixed
   variables instead of just the variable name
 * Removed `QueryBuilder::prefix` as prefixes should be defined in the constructor
-* Added more validation for variables and prefixes. Violations result in an exception when calling
-  `QueryBuilder::getSPARQL`
+* Added more validation for variables and prefixes. `QueryBuilder::getSPARQL` will throw a
+  `RangeException` if the validation fails.
 ** Selected variables that don't occur in the conditions are detected
 ** Prefixes which haven't been declared are detected
 ** Variable names and IRIs now have to mach the correct format

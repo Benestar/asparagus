@@ -3,7 +3,6 @@
 namespace Asparagus;
 
 use InvalidArgumentException;
-use UnexpectedValueException;
 
 /**
  * Package-private class to validate expressions like variables and IRIs.
@@ -101,7 +100,6 @@ class ExpressionValidator {
 	 * @param string $expression
 	 * @param int $options
 	 * @throws InvalidArgumentException
-	 * @throws UnexpectedValueException
 	 */
 	public function validate( $expression, $options = -1 ) {
 		if ( !is_string( $expression ) ) {
@@ -114,7 +112,7 @@ class ExpressionValidator {
 
 		if ( !$this->matches( $expression, $options ) ) {
 			// @todo better error message
-			throw new UnexpectedValueException( '$expression has to be a ' .
+			throw new InvalidArgumentException( '$expression has to be a ' .
 				implode( ' or a ', $this->getOptionNames( $options ) )
 			);
 		}

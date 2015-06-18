@@ -43,7 +43,7 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testValidate_invalidExpressions( $expression, $options, $errorMessage ) {
 		$expressionValidator = new ExpressionValidator();
-		$this->setExpectedException( 'UnexpectedValueException', $errorMessage );
+		$this->setExpectedException( 'InvalidArgumentException', $errorMessage );
 
 		$expressionValidator->validate( $expression, $options );
 	}

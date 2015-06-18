@@ -3,6 +3,8 @@
 namespace Asparagus;
 
 use InvalidArgumentException;
+use RangeException;
+use RuntimeException;
 
 /**
  * Allows the execution of a query to a remote SPARQL endpoint.
@@ -50,6 +52,8 @@ class QueryExecuter {
 	 * @param string|QueryBuilder $query
 	 * @return array
 	 * @throws InvalidArgumentException
+	 * @throws RangeException
+	 * @throws RuntimeException
 	 */
 	public function execute( $query ) {
 		if ( $query instanceof QueryBuilder ) {

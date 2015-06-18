@@ -23,39 +23,16 @@ class QueryPrefixBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( self::$prefixes, $prefixBuilder->getPrefixes() );
 	}
 
-	public function testSetPrefixes() {
-		$prefixBuilder = new QueryPrefixBuilder();
-		$prefixBuilder->setPrefixes( self::$prefixes );
-
-		$this->assertEquals( self::$prefixes, $prefixBuilder->getPrefixes() );
-	}
-
-	public function testSetPrefixes_invalidIRI() {
-		$prefixBuilder = new QueryPrefixBuilder();
+	public function testConstructor_invalidIRI() {
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		$prefixBuilder->setPrefixes( array( 'bar' => null ) );
+		new QueryPrefixBuilder( array( 'bar' => null ) );
 	}
 
-	public function testSetPrefixes_invalidPrefix() {
-		$prefixBuilder = new QueryPrefixBuilder();
+	public function testConstructor_invalidPrefix() {
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		$prefixBuilder->setPrefixes( array( 4 => 'http://foo.bar.com/nyan#' ) );
-	}
-
-	public function testSetPrefixes_duplicatePrefix() {
-		$prefixBuilder = new QueryPrefixBuilder( self::$prefixes );
-		$this->setExpectedException( 'OutOfBoundsException' );
-
-		$prefixBuilder->setPrefixes( array( 'test' => 'http://foo.bar.com/nyan#' ) );
-	}
-
-	public function testSetPrefixes_duplicatePrefixWithSameIRI() {
-		$prefixBuilder = new QueryPrefixBuilder( self::$prefixes );
-		$prefixBuilder->setPrefixes( array( 'test' => 'http://www.example.com/test#' ) );
-
-		$this->assertEquals( self::$prefixes, $prefixBuilder->getPrefixes() );
+		new QueryPrefixBuilder( array( 4 => 'http://foo.bar.com/nyan#' ) );
 	}
 
 	public function testGetSPARQL() {

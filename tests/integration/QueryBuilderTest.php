@@ -25,6 +25,28 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertIsExpected( 'basic_functionality', $queryBuilder->format() );
 	}
 
+	public function testUndefinedPrefixDetected() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?age' )
+			->where( '?person', 'test:name', '?name' )
+			->plus( 'nyan:age', '?age' );
+
+		$this->setExpectedException( 'RangeException', 'nyan' );
+		$queryBuilder->getSPARQL();
+	}
+
+	public function testUndefinedVariableDetected() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?email' )
+			->where( '?person', 'test:name', '?name' )
+			->plus( 'test:age', '?age' );
+
+		$this->setExpectedException( 'RangeException', '?email' );
+		$queryBuilder->getSPARQL();
+	}
+
 	private function assertIsExpected( $name, $sparql ) {
 		$expected = file_get_contents( __DIR__ . '/../data/builder_' . $name . '.rq' );
 

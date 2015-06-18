@@ -2,8 +2,8 @@
 
 namespace Asparagus;
 
-use Exception;
 use InvalidArgumentException;
+use RangeException;
 
 /**
  * Abstraction layer to build SPARQL queries
@@ -50,6 +50,7 @@ class QueryBuilder {
 
 	/**
 	 * @var string[] $prefixes
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct( array $prefixes = array() ) {
 		$this->expressionValidator = new ExpressionValidator();
@@ -63,6 +64,7 @@ class QueryBuilder {
 	 *
 	 * @param string|string[] $variables
 	 * @return self
+	 * @throws InvalidArgumentException
 	 */
 	public function select( $variables /* variables ... */ ) {
 		$variables = is_array( $variables ) ? $variables : func_get_args();
@@ -127,6 +129,7 @@ class QueryBuilder {
 	 * @param string $predicate
 	 * @param string $object
 	 * @return self
+	 * @throws InvalidArgumentException
 	 */
 	public function where( $subject, $predicate, $object ) {
 		$this->conditionBuilder->where( $subject, $predicate, $object );
@@ -141,6 +144,7 @@ class QueryBuilder {
 	 * @param string|null $predicate
 	 * @param string|null $object
 	 * @return self
+	 * @throws InvalidArgumentException
 	 */
 	public function plus( $subject, $predicate = null, $object = null ) {
 		if ( $predicate === null ) {
@@ -170,6 +174,7 @@ class QueryBuilder {
 	 *
 	 * @param string $expression
 	 * @return self
+	 * @throws InvalidArgumentException
 	 */
 	public function having( $expression ) {
 		$this->modifierBuilder->having( $expression );
@@ -218,6 +223,8 @@ class QueryBuilder {
 	 *
 	 * @param bool $includePrefixes
 	 * @return string
+	 * @throws InvalidArgumentException
+	 * @throws RangeException
 	 */
 	public function getSPARQL( $includePrefixes = true ) {
 		if ( !is_bool( $includePrefixes ) ) {
@@ -243,7 +250,7 @@ class QueryBuilder {
 
 		$diff = array_diff( $usedPrefixes, $definedPrefixes );
 		if ( !empty( $diff ) ) {
-			throw new Exception( 'The prefixes ' . implode( ', ', $diff ) . ' aren\'t defined for this query.' );
+			throw new RangeException( 'The prefixes ' . implode( ', ', $diff ) . ' aren\'t defined for this query.' );
 		}
 	}
 
@@ -253,7 +260,7 @@ class QueryBuilder {
 
 		$diff = array_diff( $usedVariables, $definedVariables );
 		if ( !empty( $diff ) ) {
-			throw new Exception( 'The variables ?' . implode( ', ?', $diff ) . ' don\'t occur in this query.' );
+			throw new RangeException( 'The variables ?' . implode( ', ?', $diff ) . ' don\'t occur in this query.' );
 		}
 	}
 

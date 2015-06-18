@@ -3,7 +3,6 @@
 namespace Asparagus;
 
 use InvalidArgumentException;
-use OutOfBoundsException;
 
 /**
  * Package-private class to build the prefixes of a SPARQL query.
@@ -35,9 +34,9 @@ class QueryPrefixBuilder {
 	 * Sets the prefixes for the given IRIs.
 	 *
 	 * @param string[] $prefixes
-	 * @throws OutOfBoundsException
+	 * @throws InvalidArgumentException
 	 */
-	public function setPrefixes( array $prefixes ) {
+	private function setPrefixes( array $prefixes ) {
 		foreach ( $prefixes as $prefix => $iri ) {
 			// @todo string concatenation makes bad values to strings
 			if ( !is_string( $iri ) ) {
@@ -46,10 +45,6 @@ class QueryPrefixBuilder {
 
 			$this->expressionValidator->validate( $prefix, ExpressionValidator::VALIDATE_PREFIX );
 			$this->expressionValidator->validate( '<' . $iri . '>', ExpressionValidator::VALIDATE_IRI );
-
-			if ( isset( $this->prefixes[$prefix] ) && $iri !== $this->prefixes[$prefix] ) {
-				throw new OutOfBoundsException( 'Prefix ' . $prefix . ' is already used for <' . $this->prefixes[$prefix] . '>' );
-			}
 
 			$this->prefixes[$prefix] = $iri;
 		}
