@@ -12,52 +12,60 @@ use Asparagus\ExpressionValidator;
  */
 class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 
-	public function testValidateVariable() {
+	/**
+	 * @dataProvider provideValidExpressions
+	 */
+	public function testValidate_validExpressions( $expression, $options, array $variables, array $prefixes ) {
 		$expressionValidator = new ExpressionValidator();
-		$expressionValidator->validateExpression( '?a', ExpressionValidator::VALIDATE_VARIABLE );
+		$expressionValidator->validateExpression( $expression, $options );
 
-		$this->assertEquals( array( 'a' ), $expressionValidator->getVariables() );
-		$this->assertEquals( array(), $expressionValidator->getPrefixes() );
+		$this->assertEquals( $variables, $expressionValidator->getVariables() );
+		$this->assertEquals( $prefixes, $expressionValidator->getPrefixes() );
 	}
 
-	public function testValidateIRI() {
-		$expressionValidator = new ExpressionValidator();
-		$expressionValidator->validateExpression( '<http://www.example.com/test#>', ExpressionValidator::VALIDATE_IRI );
-
-		$this->assertEquals( array(), $expressionValidator->getVariables() );
-		$this->assertEquals( array(), $expressionValidator->getPrefixes() );
+	public function provideValidExpressions() {
+		return array(
+			array( '?a', ExpressionValidator::VALIDATE_VARIABLE, array( 'a' ), array() ),
+			array( '$b', ExpressionValidator::VALIDATE_VARIABLE, array( 'b' ), array() ),
+			array( '<http://www.example.com/test#>', ExpressionValidator::VALIDATE_IRI, array(), array() ),
+			array( 'test:FooBar', ExpressionValidator::VALIDATE_PREFIXED_IRI, array(), array( 'test' ) ),
+			array( 'abc', ExpressionValidator::VALIDATE_PREFIX, array(), array( 'abc' ) ),
+			array( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION, array( 'x' ), array( 'xsd' ) ),
+			array( '?abc', ExpressionValidator::VALIDATE_FUNCTION, array( 'abc' ), array() ),
+			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION, array( 'x', 'y', 'z' ), array() ),
+			array( 'COUNT (?x) AS ?count', ExpressionValidator::VALIDATE_FUNCTION_AS, array( 'x' ), array() ),
+		);
 	}
 
-	public function testValidatePrefixedIRI() {
+	/**
+	 * @dataProvider provideInvalidExpressions
+	 */
+	public function testValidate_invalidExpressions( $expression, $options ) {
 		$expressionValidator = new ExpressionValidator();
-		$expressionValidator->validateExpression( 'test:FooBar', ExpressionValidator::VALIDATE_PREFIXED_IRI );
+		$this->setExpectedException( 'UnexpectedValueException' );
 
-		$this->assertEquals( array(), $expressionValidator->getVariables() );
-		$this->assertEquals( array( 'test' ), $expressionValidator->getPrefixes() );
+		$expressionValidator->validateExpression( $expression, $options );
 	}
 
-	public function testValidatePrefix() {
-		$expressionValidator = new ExpressionValidator();
-		$expressionValidator->validateExpression( 'abc', ExpressionValidator::VALIDATE_PREFIX );
-
-		$this->assertEquals( array(), $expressionValidator->getVariables() );
-		$this->assertEquals( array( 'abc' ), $expressionValidator->getPrefixes() );
-	}
-
-	public function testValidateFunction() {
-		$expressionValidator = new ExpressionValidator();
-		$expressionValidator->validateExpression( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION );
-
-		$this->assertEquals( array( 'x' ), $expressionValidator->getVariables() );
-		$this->assertEquals( array( 'xsd' ), $expressionValidator->getPrefixes() );
-	}
-
-	public function testValidateFunctionAs() {
-		$expressionValidator = new ExpressionValidator();
-		$expressionValidator->validateExpression( 'COUNT (?x) AS ?count', ExpressionValidator::VALIDATE_FUNCTION );
-
-		$this->assertEquals( array( 'x' ), $expressionValidator->getVariables() );
-		$this->assertEquals( array(), $expressionValidator->getPrefixes() );
+	public function provideInvalidExpressions() {
+		return array(
+			array( 'nyan', ExpressionValidator::VALIDATE_VARIABLE ),
+			array( 'http://www.example.com/test#', ExpressionValidator::VALIDATE_IRI ),
+			array( '<http://www.example.com/test#', ExpressionValidator::VALIDATE_IRI ),
+			array( '<abc><>', ExpressionValidator::VALIDATE_IRI ),
+			array( 'foobar', ExpressionValidator::VALIDATE_PREFIXED_IRI ),
+			array( 'test:Foo:Bar', ExpressionValidator::VALIDATE_PREFIXED_IRI ),
+			array( 'ab:cd', ExpressionValidator::VALIDATE_PREFIX ),
+			array( 'ab/cd', ExpressionValidator::VALIDATE_PREFIX ),
+			array( 'ab cd', ExpressionValidator::VALIDATE_PREFIX ),
+			array( 'foobar (?x > ?y)', ExpressionValidator::VALIDATE_FUNCTION ),
+			array( '(RAND ())', ExpressionValidator::VALIDATE_FUNCTION ),
+			array( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION_AS ),
+			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION_AS ),
+			array( ' AS ?abc', ExpressionValidator::VALIDATE_FUNCTION_AS ),
+			array( '', ExpressionValidator::VALIDATE_ALL ),
+			array( '     ', ExpressionValidator::VALIDATE_ALL ),
+		);
 	}
 
 	public function testValidate_invalidArgument() {

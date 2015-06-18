@@ -49,7 +49,7 @@ class ExpressionValidator {
 	const VALIDATE_FUNCTION_AS = 32;
 
 	/**
-	 * @var string[]
+	 * @var string[] list of natively supported functions
 	 */
 	private static $functions = array(
 		'COUNT', 'SUM', 'MIN', 'MAX', 'AVG', 'SAMPLE', 'GROUP_CONCAT', 'STR',
@@ -62,6 +62,26 @@ class ExpressionValidator {
 		'sameTerm', 'isIRI', 'isURI', 'isBLANK', 'isLITERAL', 'isNUMERIC',
 		'REGEX', 'SUBSTR', 'REPLACE', 'EXISTS', 'NOT EXISTS'
 	);
+
+	/**
+	 * @var string regex to match variables
+	 */
+	private static $variable = '[?$](\w+)';
+
+	/**
+	 * @var string regex to match IRIs
+	 */
+	private static $iri = '\<((\\.|[^\\<])+)\>';
+
+	/**
+	 * @var string regex to match prefixes
+	 */
+	private static $prefix = '\w+';
+
+	/**
+	 * @var string regex to match names after prefixes
+	 */
+	private static $name = '\w+';
 
 	/**
 	 * @var string[]
@@ -126,11 +146,6 @@ class ExpressionValidator {
 		throw new UnexpectedValueException( '$expression has to match ' . $options );
 	}
 
-	private static $variable = '[?$](\w+)';
-	private static $iri = '\<((\\.|[^\\<])+)\>';
-	private static $prefix = '[A-Za-z_]+';
-	private static $name = '\w+';
-
 	private function isVariable( $expression ) {
 		return $this->matchesRegex( self::$variable, $expression );
 	}
@@ -151,15 +166,16 @@ class ExpressionValidator {
 		// @todo also support expressions like ?a + ?b > 5 or ?x <= ?y
 		// @todo this might not be complete
 		// @todo check that opening brackets get closed
-		return $this->matchesRegex( '(\d|\w|' . self::$variable . '|' . implode( '|', self::$functions ) . ').*', $expression );
+		$allowed = array_merge( self::$functions, array( self::$iri, self::$prefix . ':', self::$variable ) );
+		return $this->matchesRegex( '(' . implode( '|', $allowed ) . ').*', $expression );
 	}
 
 	private function isFunctionAs( $expression ) {
-		return $this->matchesRegex( '(\d|\w|' . self::$variable . '|' . implode( '|', self::$functions ) . ') AS ' . self::$variable, $expression );
+		return $this->isFunction( $expression ) && $this->matchesRegex( '.* AS ' . self::$variable, $expression );
 	}
 
 	private function matchesRegex( $regex, $expression ) {
-		return preg_match( '/^' . $regex . '$/', $expression );
+		return preg_match( '/^' . $regex . '$/i', $expression );
 	}
 
 	private function trackVariables( $expression ) {

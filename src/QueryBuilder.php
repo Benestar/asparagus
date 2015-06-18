@@ -68,7 +68,10 @@ class QueryBuilder {
 		$variables = is_array( $variables ) ? $variables : func_get_args();
 
 		foreach ( $variables as $variable ) {
-			$this->expressionValidator->validateExpression( $variable, ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS );
+			$this->expressionValidator->validateExpression( $variable,
+				ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
+			);
+
 			$this->variables[] = substr( $variable, 1 );
 		}
 
