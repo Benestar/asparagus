@@ -2,7 +2,6 @@
 
 namespace Asparagus\Tests;
 
-use Asparagus\ExpressionValidator;
 use Asparagus\QueryModifierBuilder;
 
 /**

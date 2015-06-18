@@ -32,7 +32,10 @@ class QueryModifierBuilder {
 	 * @param string $expression
 	 */
 	public function groupBy( $expression )  {
-		$this->expressionValidator->validateExpression( $expression, ExpressionValidator::VALIDATE_VARIABLE );
+		$this->expressionValidator->validateExpression( $expression,
+			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
+		);
+
 		$this->modifiers['GROUP BY'] = $expression;
 	}
 
