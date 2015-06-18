@@ -43,7 +43,7 @@ class QueryConditionBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testPlus_knownSubject() {
 		$conditionBuilder = new QueryConditionBuilder();
 		$conditionBuilder->where( '?a', '?b', '?c' );
-		$conditionBuilder->plus( null, '?x', '?y' );
+		$conditionBuilder->also( null, '?x', '?y' );
 
 		$this->assertEquals( ' ?a ?b ?c ; ?x ?y .', $conditionBuilder->getSPARQL() );
 	}
@@ -51,7 +51,7 @@ class QueryConditionBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testPlus_knownPredicate() {
 		$conditionBuilder = new QueryConditionBuilder();
 		$conditionBuilder->where( '?a', '?b', '?c' );
-		$conditionBuilder->plus( null, null, '?x' );
+		$conditionBuilder->also( null, null, '?x' );
 
 		$this->assertEquals( ' ?a ?b ?c , ?x .', $conditionBuilder->getSPARQL() );
 	}
@@ -60,21 +60,21 @@ class QueryConditionBuilderTest extends \PHPUnit_Framework_TestCase {
 		$conditionBuilder = new QueryConditionBuilder();
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		$conditionBuilder->plus( null, '?x', '?y' );
+		$conditionBuilder->also( null, '?x', '?y' );
 	}
 
 	public function testPlus_unknownPredicate() {
 		$conditionBuilder = new QueryConditionBuilder();
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		$conditionBuilder->plus( '?x', null, '?y' );
+		$conditionBuilder->also( '?x', null, '?y' );
 	}
 
 	public function testGetSPARQL() {
 		$conditionBuilder = new QueryConditionBuilder();
 		$conditionBuilder->where( '?a', '?b', '?c' );
-		$conditionBuilder->plus( null, '?x', '?y' );
-		$conditionBuilder->plus( null, null, '?z' );
+		$conditionBuilder->also( null, '?x', '?y' );
+		$conditionBuilder->also( null, null, '?z' );
 		$conditionBuilder->where( '?a', '?b', '?z' );
 
 		$this->assertEquals( ' ?a ?b ?c , ?z ; ?x ?y , ?z .', $conditionBuilder->getSPARQL() );

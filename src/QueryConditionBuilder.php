@@ -61,7 +61,7 @@ class QueryConditionBuilder {
 	 * @param string|null $predicate
 	 * @param string $object
 	 */
-	public function plus( $subject, $predicate, $object ) {
+	public function also( $subject, $predicate, $object ) {
 		$this->where(
 			$subject ?: $this->currentSubject,
 			$predicate ?: $this->currentPredicate,

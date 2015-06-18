@@ -19,7 +19,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 
 		$queryBuilder->select( '?name', '?email' )
 			->where( '?person', 'test:name', '?name' )
-			->plus( 'test:email', '?email' )
+			->also( 'test:email', '?email' )
 			->limit( 10 );
 
 		$this->assertIsExpected( 'basic_functionality', $queryBuilder->format() );
@@ -30,7 +30,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 
 		$queryBuilder->select( '?age' )
 			->where( '?person', 'test:name', '?name' )
-			->plus( 'nyan:age', '?age' );
+			->also( 'nyan:age', '?age' );
 
 		$this->setExpectedException( 'RangeException', 'nyan' );
 		$queryBuilder->getSPARQL();
@@ -41,7 +41,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 
 		$queryBuilder->select( '?email' )
 			->where( '?person', 'test:name', '?name' )
-			->plus( 'test:age', '?age' );
+			->also( 'test:age', '?age' );
 
 		$this->setExpectedException( 'RangeException', '?email' );
 		$queryBuilder->getSPARQL();

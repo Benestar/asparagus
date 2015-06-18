@@ -47,7 +47,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->plus( '?a', '?b', '?c' )
+			$queryBuilder->also( '?a', '?b', '?c' )
 		);
 	}
 
@@ -56,7 +56,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder->where( '?a', '?b', '?c' );
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->plus( '?x', '?y' )
+			$queryBuilder->also( '?x', '?y' )
 		);
 	}
 
@@ -65,7 +65,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder->where( '?a', '?b', '?c' );
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->plus( '?z' )
+			$queryBuilder->also( '?z' )
 		);
 	}
 

@@ -62,7 +62,7 @@ $prefixes = array(
 $queryBuilder = new QueryBuilder( $prefixes );
 $queryBuilder->select( 'name', 'email' )
 	->where( '?person', 'test:name', '?name' )
-	->plus( 'test:email', '?email' )
+	->also( 'test:email', '?email' )
 	->limit( 10 );
 
 echo $queryBuilder->format();
@@ -90,6 +90,7 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ### 0.2 (dev)
 
+* Renamed `QueryBuilder::plus` to `QueryBuilder::also`
 * `QueryBuilder::select`, `QueryBuilder::groupBy` and `QueryBuilder::orderBy` now expect prefixed
   variables instead of just the variable name
 * Removed `QueryBuilder::prefix` as prefixes should be defined in the constructor
