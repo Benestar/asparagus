@@ -96,6 +96,7 @@ class ExpressionValidator {
 	/**
 	 * Validates the given expression and tracks it.
 	 * The default options accept IRIs, prefixed IRIs and variables.
+	 * VALIDATE_PREFIX won't track prefixes.
 	 *
 	 * @param string $expression
 	 * @param int $options
@@ -117,6 +118,9 @@ class ExpressionValidator {
 				implode( ' or a ', $this->getOptionNames( $options ) )
 			);
 		}
+
+		$this->trackVariables( $expression );
+		$this->trackPrefixes( $expression );
 	}
 
 	private function getOptionNames( $options ) {
@@ -136,92 +140,69 @@ class ExpressionValidator {
 		return array_keys( $names );
 	}
 
+	private function trackVariables( $expression ) {
+		// negative look-behind
+		if ( preg_match_all( '/(^|\W)(?<!AS )' . self::$variable . '/', $expression, $matches ) ) {
+			foreach ( $matches[2] as $match ) {
+				$this->variables[$match] = true;
+			}
+		}
+
+	}
+
+	private function trackPrefixes( $expression ) {
+		if ( preg_match_all( '/(^|\W)(' . self::$prefix . '):' . self::$name . '/', $expression, $matches ) ) {
+			foreach ( $matches[2] as $match ) {
+				$this->prefixes[$match] = true;
+			}
+		}
+	}
+
 	private function matches( $expression, $options ) {
-		if ( ( $options & self::VALIDATE_VARIABLE ) && $this->isVariable( $expression ) ) {
-			$this->trackVariables( $expression );
-			return true;
-		}
-
-		if ( ( $options & self::VALIDATE_IRI ) && $this->isIRI( $expression ) ) {
-			return true;
-		}
-
-		if ( ( $options & self::VALIDATE_PREFIXED_IRI ) && $this->isPrefixedIRI( $expression ) ) {
-			$this->trackPrefixes( $expression );
-			return true;
-		}
-
-		if ( ( $options & self::VALIDATE_PREFIX ) && $this->isPrefix( $expression ) ) {
-			$this->prefixes[$expression] = true;
-			return true;
-		}
-
-		if ( ( $options & self::VALIDATE_FUNCTION ) && $this->isFunction( $expression ) ) {
-			$this->trackVariables( $expression );
-			$this->trackPrefixes( $expression );
-			return true;
-		}
-
-		if ( ( $options & self::VALIDATE_FUNCTION_AS ) && $this->isFunctionAs( $expression ) ) {
-			$this->trackVariables( $expression );
-			$this->trackPrefixes( $expression );
-			return true;
-		}
-
-		return false;
+		return $this->isVariable( $expression, $options ) ||
+			$this->isIRI( $expression, $options ) ||
+			$this->isPrefixedIRI( $expression, $options ) ||
+			$this->isPrefix( $expression, $options ) ||
+			$this->isFunction( $expression, $options ) ||
+			$this->isFunctionAs( $expression, $options );
 	}
 
-	private function isVariable( $expression ) {
-		return $this->matchesRegex( self::$variable, $expression );
+	private function isVariable( $expression, $options ) {
+		return $options & self::VALIDATE_VARIABLE &&
+			$this->matchesRegex( self::$variable, $expression );
 	}
 
-	private function isIRI( $expression ) {
-		return $expression === 'a' || $this->matchesRegex( self::$iri, $expression );
+	private function isIRI( $expression, $options ) {
+		return $options & self::VALIDATE_IRI &&
+			( $expression === 'a' || $this->matchesRegex( self::$iri, $expression ) );
 	}
 
-	private function isPrefixedIRI( $expression ) {
-		return $this->matchesRegex( self::$prefix . ':' . self::$name, $expression );
+	private function isPrefixedIRI( $expression, $options ) {
+		return $options & self::VALIDATE_PREFIXED_IRI &&
+			$this->matchesRegex( self::$prefix . ':' . self::$name, $expression );
 	}
 
-	private function isPrefix( $expression ) {
-		return $this->matchesRegex( self::$prefix, $expression );
+	private function isPrefix( $expression, $options ) {
+		return $options & self::VALIDATE_PREFIX &&
+			$this->matchesRegex( self::$prefix, $expression );
 	}
 
-	private function isFunction( $expression ) {
-		// @todo also support expressions like ?a + ?b > 5 or ?x <= ?y
+	private function isFunction( $expression, $options ) {
 		// @todo this might not be complete
 		// @todo check that opening brackets get closed
 		$allowed = array_merge( self::$functions, array( self::$iri, self::$prefix . ':', self::$variable ) );
-		return $this->matchesRegex( '(' . implode( '|', $allowed ) . ').*', $expression );
+		return $options & self::VALIDATE_FUNCTION &&
+			$this->matchesRegex( '(' . implode( '|', $allowed ) . ').*', $expression );
 	}
 
-	private function isFunctionAs( $expression ) {
-		return $this->isFunction( $expression ) && $this->matchesRegex( '.* AS ' . self::$variable, $expression );
+	private function isFunctionAs( $expression, $options ) {
+		return $options & self::VALIDATE_FUNCTION_AS &&
+			$this->isFunction( $expression, self::VALIDATE_FUNCTION ) &&
+			$this->matchesRegex( '.* AS ' . self::$variable, $expression );
 	}
 
 	private function matchesRegex( $regex, $expression ) {
 		return preg_match( '/^' . $regex . '$/i', $expression );
-	}
-
-	private function trackVariables( $expression ) {
-		// negative look-behind
-		if ( !preg_match_all( '/(^|\W)(?<!AS )' . self::$variable . '/', $expression, $matches ) ) {
-			return;
-		}
-
-		foreach ( $matches[2] as $match ) {
-			$this->variables[$match] = true;
-		}
-	}
-
-	private function trackPrefixes( $expression ) {
-		if ( !preg_match_all( '/(^|\W)(' . self::$prefix . '):/', $expression, $matches ) ) {
-			return;
-		}
-
-		foreach ( $matches[2] as $match ) {
-			$this->prefixes[$match] = true;
-		}
 	}
 
 	/**

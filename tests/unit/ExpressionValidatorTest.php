@@ -29,10 +29,11 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 			array( '$b', ExpressionValidator::VALIDATE_VARIABLE, array( 'b' ), array() ),
 			array( '<http://www.example.com/test#>', ExpressionValidator::VALIDATE_IRI, array(), array() ),
 			array( 'test:FooBar', ExpressionValidator::VALIDATE_PREFIXED_IRI, array(), array( 'test' ) ),
-			array( 'abc', ExpressionValidator::VALIDATE_PREFIX, array(), array( 'abc' ) ),
+			array( 'abc', ExpressionValidator::VALIDATE_PREFIX, array(), array() ),
 			array( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION, array( 'x' ), array( 'xsd' ) ),
 			array( '?abc', ExpressionValidator::VALIDATE_FUNCTION, array( 'abc' ), array() ),
 			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION, array( 'x', 'y', 'z' ), array() ),
+			array( '?x * ?x < ?y', ExpressionValidator::VALIDATE_FUNCTION, array( 'x', 'y' ), array() ),
 			array( 'COUNT (?x) AS ?count', ExpressionValidator::VALIDATE_FUNCTION_AS, array( 'x' ), array() ),
 		);
 	}
