@@ -30,12 +30,12 @@ the git repository and take care of loading yourself.
 To add this package as a local, per-project dependency to your project, simply add a
 dependency on `benestar/asparagus` to your project's `composer.json` file.
 Here is a minimal example of a `composer.json` file that just defines a dependency on
-Asparagus 0.1:
+Asparagus 0.2:
 
 ```js
 {
     "require": {
-        "benestar/asparagus": "~0.1"
+        "benestar/asparagus": "~0.2"
     }
 }
 ```
