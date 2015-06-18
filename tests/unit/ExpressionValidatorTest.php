@@ -34,6 +34,7 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 			array( '?abc', ExpressionValidator::VALIDATE_FUNCTION, array( 'abc' ), array() ),
 			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION, array( 'x', 'y', 'z' ), array() ),
 			array( '?x * ?x < ?y', ExpressionValidator::VALIDATE_FUNCTION, array( 'x', 'y' ), array() ),
+			array( 'CONTAINS (?x, ")))"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION, array( 'x' ), array( 'xsd' ) ),
 			array( 'COUNT (?x) AS ?count', ExpressionValidator::VALIDATE_FUNCTION_AS, array( 'x' ), array() ),
 		);
 	}
@@ -61,6 +62,7 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 			array( 'ab cd', ExpressionValidator::VALIDATE_PREFIX, 'prefix' ),
 			array( 'foobar (?x > ?y)', ExpressionValidator::VALIDATE_FUNCTION, 'function' ),
 			array( '(RAND ())', ExpressionValidator::VALIDATE_FUNCTION, 'function' ),
+			array( 'COUNT (?x) + 5) * ?a', ExpressionValidator::VALIDATE_FUNCTION, 'function' ),
 			array( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),
 			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),
 			array( ' AS ?abc', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),

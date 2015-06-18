@@ -186,11 +186,19 @@ class ExpressionValidator {
 	}
 
 	private function isFunction( $expression, $options ) {
+		if ( !( $options & self::VALIDATE_FUNCTION ) ) {
+			return false;
+		}
+
 		// @todo this might not be complete
-		// @todo check that opening brackets get closed
 		$allowed = array_merge( self::$functions, array( self::$iri, self::$prefix . ':', self::$variable ) );
-		return $options & self::VALIDATE_FUNCTION &&
-			$this->matchesRegex( '(' . implode( '|', $allowed ) . ').*', $expression );
+		return $this->matchesRegex( '(' . implode( '|', $allowed ) . ').*', $expression ) &&
+			$this->checkBrackets( $expression );
+	}
+
+	private function checkBrackets( $expression ) {
+		$expression = preg_replace( '/"((\\.|[^\\"])*)"/', '', $expression );
+		return substr_count( $expression, '(' ) === substr_count( $expression, ')' );
 	}
 
 	private function isFunctionAs( $expression, $options ) {
