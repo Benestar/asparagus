@@ -127,6 +127,20 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( 'SELECT * WHERE { }', $queryBuilder->getSPARQL( false ) );
 	}
 
+	public function testGetSPARQL_undefinedVariable() {
+		$queryBuilder = new QueryBuilder();
+		$this->setExpectedException( 'Exception', '?x' );
+
+		$queryBuilder->select( '?x' )->getSPARQL();
+	}
+
+	public function testGetSPARQL_undefinedPrefix() {
+		$queryBuilder = new QueryBuilder();
+		$this->setExpectedException( 'Exception', 'foo, nyan' );
+
+		$queryBuilder->where( '?x', 'foo:bar', 'nyan:data' )->getSPARQL();
+	}
+
 	public function testToString() {
 		$queryBuilder = new QueryBuilder();
 

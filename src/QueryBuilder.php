@@ -243,7 +243,7 @@ class QueryBuilder {
 
 		$diff = array_diff( $usedPrefixes, $definedPrefixes );
 		if ( !empty( $diff ) ) {
-			throw new Exception( 'The prefixes ' . implode( ' ', $diff ) . ' aren\'t defined for this query.' );
+			throw new Exception( 'The prefixes ' . implode( ', ', $diff ) . ' aren\'t defined for this query.' );
 		}
 	}
 
@@ -253,7 +253,7 @@ class QueryBuilder {
 
 		$diff = array_diff( $usedVariables, $definedVariables );
 		if ( !empty( $diff ) ) {
-			throw new Exception( 'The variables ' . implode( ' ', $diff ) . ' don\'t occur in this query.' );
+			throw new Exception( 'The variables ?' . implode( ', ?', $diff ) . ' don\'t occur in this query.' );
 		}
 	}
 
