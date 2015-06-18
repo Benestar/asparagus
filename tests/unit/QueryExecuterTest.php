@@ -59,7 +59,7 @@ class QueryExecuterTest extends \PHPUnit_Framework_TestCase {
 
 	public function testExecuteQueryBuilder() {
 		$http = $this->getHttpMock( array(
-			'query' => 'SELECT * WHERE {}',
+			'query' => 'SELECT * WHERE { }',
 			'format' => 'json'
 		) );
 

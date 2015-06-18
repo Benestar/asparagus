@@ -17,7 +17,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testBasicFunctionality() {
 		$queryBuilder = new QueryBuilder( self::$prefixes );
 
-		$queryBuilder->select( 'name', 'email' )
+		$queryBuilder->select( '?name', '?email' )
 			->where( '?person', 'test:name', '?name' )
 			->plus( 'test:email', '?email' )
 			->limit( 10 );

@@ -16,14 +16,14 @@ class HttpTest extends \PHPUnit_Framework_TestCase {
 
 	public function testRequest() {
 		$http = new Http( 'Asparagus Test/Asparagus 0.1' );
-		$result = $http->request( 'http://wikidata.beta.wmflabs.org/w/api.php' );
+		$result = $http->request( 'http://wikidata-mobile.wmflabs.org/w/api.php' );
 
 		$this->assertContains( 'MediaWiki API help', $result );
 	}
 
 	public function testRequestWithParams() {
 		$http = new Http( 'Asparagus Test/Asparagus 0.1' );
-		$result = $http->request( 'http://wikidata.beta.wmflabs.org/w/api.php', array(
+		$result = $http->request( 'http://wikidata-mobile.wmflabs.org/w/api.php', array(
 			'action' => 'query',
 			'format' => 'json'
 		) );
@@ -35,7 +35,7 @@ class HttpTest extends \PHPUnit_Framework_TestCase {
 		$http = new Http( 'Asparagus Test/Asparagus 0.1' );
 		$this->setExpectedException( 'RuntimeException', null, 404 );
 
-		$http->request( 'http://wikidata.beta.wmflabs.org/not-existing-file.php' );
+		$http->request( 'http://wikidata-mobile.wmflabs.org/not-existing-file.php' );
 	}
 
 }

@@ -88,6 +88,10 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ## Release notes
 
+### 0.2 (dev)
+
+* `QueryBuilder::select` now expects prefixed variables instead of just the variable name
+
 ### 0.1 (2015-06-17)
 
 Initial release with these features:

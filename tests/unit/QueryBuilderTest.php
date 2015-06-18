@@ -29,11 +29,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->select( 'a', 'b' )
+			$queryBuilder->select( '?a', '?b' )
 		);
 
 		$this->assertEquals(
-			'SELECT ?a ?b WHERE {}',
+			'SELECT ?a ?b WHERE { }',
 			$queryBuilder->getSPARQL()
 		);
 	}
@@ -42,7 +42,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		$queryBuilder->select( 'a', false );
+		$queryBuilder->select( '?a', false );
 	}
 
 	public function testWhere() {
@@ -122,25 +122,25 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testGetSPARQL() {
 		$queryBuilder = new QueryBuilder();
 
-		$this->assertEquals( 'SELECT * WHERE {}', $queryBuilder->getSPARQL() );
+		$this->assertEquals( 'SELECT * WHERE { }', $queryBuilder->getSPARQL() );
 	}
 
 	public function testGetSPARQL_withPrefixes() {
 		$queryBuilder = new QueryBuilder( array( 'foo' => 'bar' ) );
 
-		$this->assertEquals( 'PREFIX foo: <bar> SELECT * WHERE {}', $queryBuilder->getSPARQL() );
+		$this->assertEquals( 'PREFIX foo: <bar> SELECT * WHERE { }', $queryBuilder->getSPARQL() );
 	}
 
 	public function testGetSPARQL_noPrefixes() {
 		$queryBuilder = new QueryBuilder( array( 'foo' => 'bar' ) );
 
-		$this->assertEquals( 'SELECT * WHERE {}', $queryBuilder->getSPARQL( false ) );
+		$this->assertEquals( 'SELECT * WHERE { }', $queryBuilder->getSPARQL( false ) );
 	}
 
 	public function testToString() {
 		$queryBuilder = new QueryBuilder();
 
-		$this->assertEquals( 'SELECT * WHERE {}', strval( $queryBuilder ) );
+		$this->assertEquals( 'SELECT * WHERE { }', strval( $queryBuilder ) );
 	}
 
 	public function testFormat() {

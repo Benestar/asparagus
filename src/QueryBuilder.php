@@ -80,7 +80,7 @@ class QueryBuilder {
 				throw new InvalidArgumentException( '$variables has to be an array of strings' );
 			}
 
-			$this->variables[] = '?' . $variable;
+			$this->variables[] = substr( $variable, 1 );
 		}
 
 		return $this;
@@ -236,14 +236,14 @@ class QueryBuilder {
 		$sparql .= 'SELECT ' . $this->getVariables() . ' WHERE {';
 		$sparql .= $this->getSubqueries();
 		$sparql .= $this->conditionBuilder->getSPARQL();
-		$sparql .= '}';
+		$sparql .= ' }';
 		$sparql .= $this->modifierBuilder->getSPARQL();
 
 		return $sparql;
 	}
 
 	private function getVariables() {
-		return empty( $this->variables ) ? '*' : implode( ' ', $this->variables );
+		return empty( $this->variables ) ? '*' : '?' . implode( ' ?', $this->variables );
 	}
 
 	private function getSubqueries() {
