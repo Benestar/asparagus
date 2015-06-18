@@ -58,13 +58,6 @@ class QueryPrefixBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( self::$prefixes, $prefixBuilder->getPrefixes() );
 	}
 
-	public function testHasPrefix() {
-		$prefixBuilder = new QueryPrefixBuilder( self::$prefixes );
-
-		$this->assertTrue( $prefixBuilder->hasPrefix( 'test' ) );
-		$this->assertFalse( $prefixBuilder->hasPrefix( 'nyan' ) );
-	}
-
 	public function testGetSPARQL() {
 		$prefixBuilder = new QueryPrefixBuilder( self::$prefixes );
 

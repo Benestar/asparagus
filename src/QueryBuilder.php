@@ -52,19 +52,6 @@ class QueryBuilder {
 	}
 
 	/**
-	 * Adds a prefix for the given IRI.
-	 *
-	 * @param string|string[] $prefix
-	 * @param string|null $iri
-	 * @return self
-	 */
-	public function prefix( $prefix, $iri = null ) {
-		$prefixes = is_array( $prefix ) ? $prefix : array( $prefix => $iri );
-		$this->prefixBuilder->setPrefixes( $prefixes );
-		return $this;
-	}
-
-	/**
 	 * Specifies the variables to select.
 	 *
 	 * @param string|string[] $variables

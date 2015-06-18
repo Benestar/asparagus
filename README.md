@@ -92,6 +92,7 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 * `QueryBuilder::select`, `QueryBuilder::groupBy` and `QueryBuilder::orderBy`
   now expect prefixed variables instead of just the variable name
+* Removed `QueryBuilder::prefix` as prefixes should be defined in the constructor
 
 ### 0.1 (2015-06-17)
 

@@ -12,19 +12,6 @@ use Asparagus\QueryBuilder;
  */
 class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 
-	public function testPrefix() {
-		$queryBuilder = new QueryBuilder();
-		$this->assertSame(
-			$queryBuilder,
-			$queryBuilder->prefix( 'test', 'http://www.example.com/test#' )
-		);
-
-		$this->assertContains(
-			'PREFIX test: <http://www.example.com/test#>',
-			$queryBuilder->getSPARQL()
-		);
-	}
-
 	public function testSelect() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(

@@ -55,14 +55,6 @@ class QueryPrefixBuilder {
 	}
 
 	/**
-	 * @param string $prefix
-	 * @return bool
-	 */
-	public function hasPrefix( $prefix ) {
-		return isset( $this->prefixes[$prefix] );
-	}
-
-	/**
 	 * Returns the plain SPARQL string of these prefixes.
 	 *
 	 * @return string
