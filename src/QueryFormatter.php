@@ -87,11 +87,11 @@ class QueryFormatter {
 			$this->formattedParts[] = "\n\n";
 		}
 
-		if ( in_array( $part, array( '.', '=', '(', '<', '{', '?', '$' ) ) ) {
-			if ( end( $this->formattedParts ) !== "\n" ) {
-				$this->trimEnd();
-				$this->append( ' ' );
-			}
+		if ( end( $this->formattedParts ) !== "\n" &&
+			in_array( $part, array( '.', '=', '(', '<', '{', '?', '$' ) )
+		) {
+			$this->trimEnd();
+			$this->append( ' ' );
 		}
 	}
 
@@ -110,14 +110,12 @@ class QueryFormatter {
 	}
 
 	private function append( $part ) {
-		if ( ctype_space( $part ) ) {
-			if ( !ctype_space( end( $this->formattedParts ) ) &&
-				end( $this->formattedParts ) !== '('
-			) {
-				$this->formattedParts[] = ' ';
-			}
-		} else {
+		if ( !ctype_space( $part ) ) {
 			$this->formattedParts[] = $part;
+		} else if ( !ctype_space( end( $this->formattedParts ) ) &&
+			end( $this->formattedParts ) !== '('
+		) {
+			$this->formattedParts[] = ' ';
 		}
 	}
 
