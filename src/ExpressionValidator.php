@@ -3,6 +3,7 @@
 namespace Asparagus;
 
 use InvalidArgumentException;
+use UnexpectedValueException;
 
 /**
  * Package-private class to validate expressions like variables and IRIs.
@@ -79,6 +80,7 @@ class ExpressionValidator {
 	 * @param string $expression
 	 * @param int $options
 	 * @throws InvalidArgumentException
+	 * @throws UnexpectedValueException
 	 */
 	public function validateExpression( $expression, $options = -1 ) {
 		if ( !is_string( $expression ) ) {
@@ -90,7 +92,7 @@ class ExpressionValidator {
 		}
 
 		if ( ( $options & self::VALIDATE_VARIABLE ) && $this->isVariable( $expression ) ) {
-			$this->variables[substr( $expression, 1 )] = true;
+			$this->trackVariables( $expression );
 			return;
 		}
 
@@ -99,7 +101,7 @@ class ExpressionValidator {
 		}
 
 		if ( ( $options & self::VALIDATE_PREFIXED_IRI ) && $this->isPrefixedIRI( $expression ) ) {
-			$this->prefixes[substr( $expression, 0, strpos( $expression, ':' ) )] = true;
+			$this->trackPrefixes( $expression );
 			return;
 		}
 
@@ -109,22 +111,25 @@ class ExpressionValidator {
 		}
 
 		if ( ( $options & self::VALIDATE_FUNCTION ) && $this->isFunction( $expression ) ) {
-			// @todo track prefixes and variables (using regex?)
+			$this->trackVariables( $expression );
+			$this->trackPrefixes( $expression );
 			return;
 		}
 
 		if ( ( $options & self::VALIDATE_FUNCTION_AS ) && $this->isFunctionAs( $expression ) ) {
-			// @todo track prefixes and variables (using regex?)
+			$this->trackVariables( $expression );
+			$this->trackPrefixes( $expression );
 			return;
 		}
 
-		throw new InvalidArgumentException( '$expression has to match ' . $options );
+		// @todo better error message
+		throw new UnexpectedValueException( '$expression has to match ' . $options );
 	}
 
-	private static $variable = '[?$][A-Za-z_]+';
+	private static $variable = '[?$](\w+)';
 	private static $iri = '\<((\\.|[^\\<])+)\>';
 	private static $prefix = '[A-Za-z_]+';
-	private static $name = '[A-Za-z_0-9:]+';
+	private static $name = '\w+';
 
 	private function isVariable( $expression ) {
 		return $this->matchesRegex( self::$variable, $expression );
@@ -145,6 +150,7 @@ class ExpressionValidator {
 	private function isFunction( $expression ) {
 		// @todo also support expressions like ?a + ?b > 5 or ?x <= ?y
 		// @todo this might not be complete
+		// @todo check that opening brackets get closed
 		return $this->matchesRegex( '(\d|\w|' . self::$variable . '|' . implode( '|', self::$functions ) . ').*', $expression );
 	}
 
@@ -154,6 +160,27 @@ class ExpressionValidator {
 
 	private function matchesRegex( $regex, $expression ) {
 		return preg_match( '/^' . $regex . '$/', $expression );
+	}
+
+	private function trackVariables( $expression ) {
+		// negative look-behind
+		if ( !preg_match_all( '/(^|\W)(?<!AS )' . self::$variable . '/', $expression, $matches ) ) {
+			return;
+		}
+
+		foreach ( $matches[2] as $match ) {
+			$this->variables[$match] = true;
+		}
+	}
+
+	private function trackPrefixes( $expression ) {
+		if ( !preg_match_all( '/(^|\W)(' . self::$prefix . '):/', $expression, $matches ) ) {
+			return;
+		}
+
+		foreach ( $matches[2] as $match ) {
+			$this->prefixes[$match] = true;
+		}
 	}
 
 	/**
