@@ -95,7 +95,7 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ## Release notes
 
-### 0.2 (dev)
+### 0.2 (2015-06-18)
 
 * Renamed `QueryBuilder::plus` to `QueryBuilder::also`
 * `QueryBuilder::select`, `QueryBuilder::groupBy` and `QueryBuilder::orderBy` now expect prefixed
@@ -106,6 +106,7 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
   * Selected variables that don't occur in the conditions are detected
   * Prefixes which haven't been declared are detected
   * Variable names and IRIs now have to mach the correct format
+  * A list of supported functions has been added and a check to find bracket mismatches
 
 ### 0.1 (2015-06-17)
 

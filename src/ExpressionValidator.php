@@ -145,7 +145,6 @@ class ExpressionValidator {
 				$this->variables[$match] = true;
 			}
 		}
-
 	}
 
 	private function trackPrefixes( $expression ) {
