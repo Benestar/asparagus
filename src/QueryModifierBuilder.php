@@ -20,16 +20,16 @@ class QueryModifierBuilder {
 	/**
 	 * Sets the GROUP BY modifier.
 	 *
-	 * @param string $variable
+	 * @param string $expression
 	 * @throws InvalidArgumentException
 	 */
-	public function groupBy( $variable )  {
+	public function groupBy( $expression )  {
 		// @todo better string validation
-		if ( !is_string( $variable ) ) {
+		if ( !is_string( $expression ) ) {
 			throw new InvalidArgumentException( '$variable has to be a string' );
 		}
 
-		$this->modifiers['GROUP BY'] = '?' . $variable;
+		$this->modifiers['GROUP BY'] = $expression;
 	}
 
 	/**
@@ -43,28 +43,29 @@ class QueryModifierBuilder {
 			throw new InvalidArgumentException( '$expression has to be a string' );
 		}
 
-		$this->modifiers['HAVING'] = $expression;
+		$this->modifiers['HAVING'] = '(' . $expression . ')';
 	}
 
 	/**
 	 * Sets the ORDER BY modifier.
 	 *
-	 * @param string $variable
+	 * @param string $expression
 	 * @param string $direction one of ASC or DESC
 	 * @throws InvalidArgumentException
 	 */
-	public function orderBy( $variable, $direction = 'ASC' ) {
+	public function orderBy( $expression, $direction = 'ASC' ) {
 		// @todo better string validation
-		if ( !is_string( $variable ) ) {
+		if ( !is_string( $expression ) ) {
 			throw new InvalidArgumentException( '$variable has to be a string' );
 		}
 
-		// @todo also allow lower case
+		$direction = strtoupper( $direction );
+
 		if ( !in_array( $direction, array( 'ASC', 'DESC' ) ) ) {
 			throw new InvalidArgumentException( '$direction has to be either ASC or DESC' );
 		}
 
-		$this->modifiers['ORDER BY'] = '?' . $variable . ' ' . $direction;
+		$this->modifiers['ORDER BY'] = $direction . ' (' . $expression . ')';
 	}
 
 	/**

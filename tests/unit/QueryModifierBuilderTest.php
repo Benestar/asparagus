@@ -14,7 +14,7 @@ class QueryModifierBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGroupByModifier() {
 		$queryBuilder = new QueryModifierBuilder();
-		$queryBuilder->groupBy( 'test' );
+		$queryBuilder->groupBy( '?test' );
 
 		$this->assertEquals( ' GROUP BY ?test', $queryBuilder->getSPARQL() );
 	}
@@ -28,9 +28,9 @@ class QueryModifierBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testHavingModifier() {
 		$queryBuilder = new QueryModifierBuilder();
-		$queryBuilder->having( 'test' );
+		$queryBuilder->having( '?test' );
 
-		$this->assertEquals( ' HAVING test', $queryBuilder->getSPARQL() );
+		$this->assertEquals( ' HAVING (?test)', $queryBuilder->getSPARQL() );
 	}
 
 	public function testHavingModifier_invalidArgument() {
@@ -42,16 +42,16 @@ class QueryModifierBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testOrderByModifier() {
 		$queryBuilder = new QueryModifierBuilder();
-		$queryBuilder->orderBy( 'test' );
+		$queryBuilder->orderBy( '?test' );
 
-		$this->assertEquals( ' ORDER BY ?test ASC', $queryBuilder->getSPARQL() );
+		$this->assertEquals( ' ORDER BY ASC (?test)', $queryBuilder->getSPARQL() );
 	}
 
 	public function testOrderByDescModifier() {
 		$queryBuilder = new QueryModifierBuilder();
-		$queryBuilder->orderBy( 'test', 'DESC' );
+		$queryBuilder->orderBy( '?test', 'DESC' );
 
-		$this->assertEquals( ' ORDER BY ?test DESC', $queryBuilder->getSPARQL() );
+		$this->assertEquals( ' ORDER BY DESC (?test)', $queryBuilder->getSPARQL() );
 	}
 
 	public function testOrderByModifier_invalidArgument() {
@@ -65,7 +65,7 @@ class QueryModifierBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryModifierBuilder();
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		$queryBuilder->orderBy( 'test', 'FOO' );
+		$queryBuilder->orderBy( '?test', 'FOO' );
 	}
 
 	public function testLimitModifier() {

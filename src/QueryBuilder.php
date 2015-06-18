@@ -164,12 +164,12 @@ class QueryBuilder {
 	/**
 	 * Sets the GROUP BY modifier.
 	 *
-	 * @param string $variable
+	 * @param string $expression
 	 * @return self
 	 * @throws InvalidArgumentException
 	 */
-	public function groupBy( $variable )  {
-		$this->modifierBuilder->groupBy( $variable );
+	public function groupBy( $expression )  {
+		$this->modifierBuilder->groupBy( $expression );
 		return $this;
 	}
 
@@ -187,13 +187,13 @@ class QueryBuilder {
 	/**
 	 * Sets the ORDER BY modifier.
 	 *
-	 * @param string $variable
+	 * @param string $expression
 	 * @param string $direction one of ASC or DESC
 	 * @return self
 	 * @throws InvalidArgumentException
 	 */
-	public function orderBy( $variable, $direction = 'ASC' ) {
-		$this->modifierBuilder->orderBy( $variable, $direction );
+	public function orderBy( $expression, $direction = 'ASC' ) {
+		$this->modifierBuilder->orderBy( $expression, $direction );
 		return $this;
 	}
 
