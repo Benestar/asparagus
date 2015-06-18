@@ -19,8 +19,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 			$queryBuilder->select( '?a', '?b' )
 		);
 
+		// use variables ?a and ?b
+		$queryBuilder->where( '?a', '?b', '?c' );
+
 		$this->assertEquals(
-			'SELECT ?a ?b WHERE { }',
+			'SELECT ?a ?b WHERE { ?a ?b ?c . }',
 			$queryBuilder->getSPARQL()
 		);
 	}
@@ -70,7 +73,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->groupBy( 'test' )
+			$queryBuilder->groupBy( '?test' )
 		);
 	}
 
@@ -78,7 +81,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->having( 'test' )
+			$queryBuilder->having( 'AVG(?size) > 10' )
 		);
 	}
 
@@ -86,7 +89,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->orderBy( 'test' )
+			$queryBuilder->orderBy( '?test' )
 		);
 	}
 

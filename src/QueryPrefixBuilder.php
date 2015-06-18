@@ -19,9 +19,15 @@ class QueryPrefixBuilder {
 	private $prefixes = array();
 
 	/**
-	 * @var string[] $prefixes
+	 * @var ExpressionValidator
+	 */
+	private $expressionValidator;
+
+	/**
+	 * @param string[] $prefixes
 	 */
 	public function __construct( array $prefixes = array() ) {
+		$this->expressionValidator = new ExpressionValidator();
 		$this->setPrefixes( $prefixes );
 	}
 
@@ -29,15 +35,17 @@ class QueryPrefixBuilder {
 	 * Sets the prefixes for the given IRIs.
 	 *
 	 * @param string[] $prefixes
-	 * @throws InvalidArgumentException
 	 * @throws OutOfBoundsException
 	 */
 	public function setPrefixes( array $prefixes ) {
 		foreach ( $prefixes as $prefix => $iri ) {
-			// @todo better string validation
-			if ( !is_string( $prefix ) || !is_string( $iri ) ) {
-				throw new InvalidArgumentException( '$prefix and $iri have to be strings' );
+			// @todo string concatenation makes bad values to strings
+			if ( !is_string( $iri ) ) {
+				throw new InvalidArgumentException( '$iri has to be a string' );
 			}
+
+			$this->expressionValidator->validate( $prefix, ExpressionValidator::VALIDATE_PREFIX );
+			$this->expressionValidator->validate( '<' . $iri . '>', ExpressionValidator::VALIDATE_IRI );
 
 			if ( isset( $this->prefixes[$prefix] ) && $iri !== $this->prefixes[$prefix] ) {
 				throw new OutOfBoundsException( 'Prefix ' . $prefix . ' is already used for <' . $this->prefixes[$prefix] . '>' );

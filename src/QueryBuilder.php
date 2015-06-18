@@ -2,6 +2,7 @@
 
 namespace Asparagus;
 
+use Exception;
 use InvalidArgumentException;
 
 /**
@@ -16,6 +17,11 @@ use InvalidArgumentException;
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class QueryBuilder {
+
+	/**
+	 * @var ExpressionValidator
+	 */
+	private $expressionValidator;
 
 	/**
 	 * @var QueryPrefixBuilder
@@ -46,6 +52,7 @@ class QueryBuilder {
 	 * @var string[] $prefixes
 	 */
 	public function __construct( array $prefixes = array() ) {
+		$this->expressionValidator = new ExpressionValidator();
 		$this->prefixBuilder = new QueryPrefixBuilder( $prefixes );
 		$this->conditionBuilder = new QueryConditionBuilder();
 		$this->modifierBuilder = new QueryModifierBuilder();
@@ -56,16 +63,14 @@ class QueryBuilder {
 	 *
 	 * @param string|string[] $variables
 	 * @return self
-	 * @throws InvalidArgumentException
 	 */
 	public function select( $variables /* variables ... */ ) {
 		$variables = is_array( $variables ) ? $variables : func_get_args();
 
 		foreach ( $variables as $variable ) {
-			// @todo better string validation
-			if ( !is_string( $variable ) ) {
-				throw new InvalidArgumentException( '$variables has to be an array of strings' );
-			}
+			$this->expressionValidator->validate( $variable,
+				ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
+			);
 
 			$this->variables[] = substr( $variable, 1 );
 		}
@@ -219,6 +224,9 @@ class QueryBuilder {
 			throw new InvalidArgumentException( '$includePrefixes has to be a bool' );
 		}
 
+		$this->validatePrefixes();
+		$this->validateVariables();
+
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
 		$sparql .= 'SELECT ' . $this->getVariables() . ' WHERE {';
 		$sparql .= $this->getSubqueries();
@@ -227,6 +235,26 @@ class QueryBuilder {
 		$sparql .= $this->modifierBuilder->getSPARQL();
 
 		return $sparql;
+	}
+
+	private function validatePrefixes() {
+		$definedPrefixes = array_keys( $this->prefixBuilder->getPrefixes() );
+		$usedPrefixes = array_merge( $this->conditionBuilder->getPrefixes(), $this->modifierBuilder->getPrefixes() );
+
+		$diff = array_diff( $usedPrefixes, $definedPrefixes );
+		if ( !empty( $diff ) ) {
+			throw new Exception( 'The prefixes ' . implode( ' ', $diff ) . ' aren\'t defined for this query.' );
+		}
+	}
+
+	private function validateVariables() {
+		$definedVariables = $this->conditionBuilder->getVariables();
+		$usedVariables = array_merge( $this->variables, $this->modifierBuilder->getVariables() );
+
+		$diff = array_diff( $usedVariables, $definedVariables );
+		if ( !empty( $diff ) ) {
+			throw new Exception( 'The variables ' . implode( ' ', $diff ) . ' don\'t occur in this query.' );
+		}
 	}
 
 	private function getVariables() {

@@ -2,12 +2,10 @@
 
 namespace Asparagus;
 
-use InvalidArgumentException;
-
 /**
  * Package-private class to build the conditions of a SPARQL query.
  *
- * @todo support filter, filterExists, filterNotExists, optional, union, minus
+ * @todo support filter, optional, union, minus
  *
  * @license GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
@@ -30,18 +28,25 @@ class QueryConditionBuilder {
 	private $currentPredicate = null;
 
 	/**
+	 * @var ExpressionValidator
+	 */
+	private $expressionValidator;
+
+	public function __construct() {
+		$this->expressionValidator = new ExpressionValidator();
+	}
+
+	/**
 	 * Adds the given triple as a condition.
 	 *
 	 * @param string $subject
 	 * @param string $predicate
 	 * @param string $object
-	 * @throws InvalidArgumentException
 	 */
 	public function where( $subject, $predicate, $object ) {
-		// @todo better string validation
-		if ( !is_string( $subject ) || !is_string( $predicate ) || !is_string( $object ) ) {
-			throw new InvalidArgumentException( '$subject, $predicate and $object have to be strings' );
-		}
+		$this->expressionValidator->validate( $subject );
+		$this->expressionValidator->validate( $predicate );
+		$this->expressionValidator->validate( $object );
 
 		$this->currentSubject = $subject;
 		$this->currentPredicate = $predicate;
@@ -85,6 +90,20 @@ class QueryConditionBuilder {
 		return implode( ' ;', array_map( function( $predicate, $objects ) {
 			return ' ' . $predicate . ' ' . implode( ' , ', $objects );
 		}, array_keys( $predicates ), $predicates ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getPrefixes() {
+		return $this->expressionValidator->getPrefixes();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getVariables() {
+		return $this->expressionValidator->getVariables();
 	}
 
 }

@@ -18,16 +18,23 @@ class QueryModifierBuilder {
 	private $modifiers = array();
 
 	/**
+	 * @var ExpressionValidator
+	 */
+	private $expressionValidator;
+
+	public function __construct() {
+		$this->expressionValidator = new ExpressionValidator();
+	}
+
+	/**
 	 * Sets the GROUP BY modifier.
 	 *
 	 * @param string $expression
-	 * @throws InvalidArgumentException
 	 */
 	public function groupBy( $expression )  {
-		// @todo better string validation
-		if ( !is_string( $expression ) ) {
-			throw new InvalidArgumentException( '$variable has to be a string' );
-		}
+		$this->expressionValidator->validate( $expression,
+			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
+		);
 
 		$this->modifiers['GROUP BY'] = $expression;
 	}
@@ -38,11 +45,7 @@ class QueryModifierBuilder {
 	 * @param string $expression
 	 */
 	public function having( $expression ) {
-		// @todo better string validation
-		if ( !is_string( $expression ) ) {
-			throw new InvalidArgumentException( '$expression has to be a string' );
-		}
-
+		$this->expressionValidator->validate( $expression, ExpressionValidator::VALIDATE_FUNCTION );
 		$this->modifiers['HAVING'] = '(' . $expression . ')';
 	}
 
@@ -54,10 +57,9 @@ class QueryModifierBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function orderBy( $expression, $direction = 'ASC' ) {
-		// @todo better string validation
-		if ( !is_string( $expression ) ) {
-			throw new InvalidArgumentException( '$variable has to be a string' );
-		}
+		$this->expressionValidator->validate( $expression,
+			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION
+		);
 
 		$direction = strtoupper( $direction );
 
@@ -108,6 +110,20 @@ class QueryModifierBuilder {
 				return ' ' . $key . ' ' . $modifiers[$key];
 			}
 		}, array( 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT', 'OFFSET' ) ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getPrefixes() {
+		return $this->expressionValidator->getPrefixes();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getVariables() {
+		return $this->expressionValidator->getVariables();
 	}
 
 }
