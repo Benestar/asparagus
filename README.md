@@ -97,7 +97,8 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ### 0.3 (dev)
 
-* Added `QueryBuilder::filter` to add basic query filters
+* Added `QueryBuilder::filter`, `QueryBuilder::filterExists` and `QueryBuilder::filterNotExists`
+* Added `GraphBuilder` (previously package-private `QueryConditionBuilder`)
 
 ### 0.2.1 (2015-06-19)
 

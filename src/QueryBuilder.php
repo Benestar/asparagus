@@ -39,9 +39,9 @@ class QueryBuilder {
 	private $subqueries = array();
 
 	/**
-	 * @var QueryConditionBuilder
+	 * @var GraphBuilder
 	 */
-	private $conditionBuilder;
+	private $graphBuilder;
 
 	/**
 	 * @var QueryModifierBuilder
@@ -55,7 +55,7 @@ class QueryBuilder {
 	public function __construct( array $prefixes = array() ) {
 		$this->expressionValidator = new ExpressionValidator();
 		$this->prefixBuilder = new QueryPrefixBuilder( $prefixes );
-		$this->conditionBuilder = new QueryConditionBuilder();
+		$this->graphBuilder = new GraphBuilder();
 		$this->modifierBuilder = new QueryModifierBuilder();
 	}
 
@@ -132,7 +132,7 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function where( $subject, $predicate, $object ) {
-		$this->conditionBuilder->where( $subject, $predicate, $object );
+		$this->graphBuilder->where( $subject, $predicate, $object );
 		return $this;
 	}
 
@@ -147,7 +147,7 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function also( $subject, $predicate = null, $object = null ) {
-		$this->conditionBuilder->also( $subject, $predicate, $object );
+		$this->graphBuilder->also( $subject, $predicate, $object );
 		return $this;
 	}
 
@@ -161,7 +161,7 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function filter( $expression ) {
-		$this->conditionBuilder->filter( $expression );
+		$this->graphBuilder->filter( $expression );
 		return $this;
 	}
 
@@ -245,7 +245,7 @@ class QueryBuilder {
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
 		$sparql .= 'SELECT ' . $this->getVariables() . ' WHERE {';
 		$sparql .= $this->getSubqueries();
-		$sparql .= $this->conditionBuilder->getSPARQL();
+		$sparql .= $this->graphBuilder->getSPARQL();
 		$sparql .= ' }';
 		$sparql .= $this->modifierBuilder->getSPARQL();
 
@@ -254,7 +254,7 @@ class QueryBuilder {
 
 	private function validatePrefixes() {
 		$definedPrefixes = array_keys( $this->prefixBuilder->getPrefixes() );
-		$usedPrefixes = array_merge( $this->conditionBuilder->getPrefixes(), $this->modifierBuilder->getPrefixes() );
+		$usedPrefixes = array_merge( $this->graphBuilder->getPrefixes(), $this->modifierBuilder->getPrefixes() );
 
 		$diff = array_diff( $usedPrefixes, $definedPrefixes );
 		if ( !empty( $diff ) ) {
@@ -263,7 +263,7 @@ class QueryBuilder {
 	}
 
 	private function validateVariables() {
-		$definedVariables = $this->conditionBuilder->getVariables();
+		$definedVariables = $this->graphBuilder->getVariables();
 		$usedVariables = array_merge( $this->variables, $this->modifierBuilder->getVariables() );
 
 		$diff = array_diff( $usedVariables, $definedVariables );

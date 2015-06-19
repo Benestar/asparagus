@@ -2,15 +2,19 @@
 
 namespace Asparagus;
 
+use InvalidArgumentException;
+
 /**
- * Package-private class to build the conditions of a SPARQL query.
+ * Abstraction layer to create graphs for SPARQL queries
  *
  * @todo support filter, optional, union, minus
+ *
+ * @since 0.3 (package-private since 0.1)
  *
  * @license GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class QueryConditionBuilder {
+class GraphBuilder {
 
 	/**
 	 * @var array nested list of conditions, grouped by subject and predicate
@@ -47,6 +51,8 @@ class QueryConditionBuilder {
 	 * @param string $subject
 	 * @param string $predicate
 	 * @param string $object
+	 * @return self
+	 * @throws InvalidArgumentException
 	 */
 	public function where( $subject, $predicate, $object ) {
 		$this->expressionValidator->validate( $subject,
@@ -62,6 +68,8 @@ class QueryConditionBuilder {
 		$this->currentSubject = $subject;
 		$this->currentPredicate = $predicate;
 		$this->conditions[$subject][$predicate][] = $object;
+
+		return $this;
 	}
 
 	/**
@@ -71,6 +79,8 @@ class QueryConditionBuilder {
 	 * @param string $subject
 	 * @param string|null $predicate
 	 * @param string|null $object
+	 * @return self
+	 * @throws InvalidArgumentException
 	 */
 	public function also( $subject, $predicate = null, $object = null ) {
 		if ( $predicate === null ) {
@@ -80,36 +90,48 @@ class QueryConditionBuilder {
 		} else {
 			$this->where( $subject, $predicate, $object );
 		}
+
+		return $this;
 	}
 
 	/**
 	 * Adds the given expression as a filter to this query.
 	 *
 	 * @param string $expression
+	 * @return self
+	 * @throws InvalidArgumentException
 	 */
 	public function filter( $expression ) {
 		$this->expressionValidator->validate( $expression, ExpressionValidator::VALIDATE_FUNCTION );
 		$this->filters[] = $expression;
+
+		return $this;
 	}
 
 	/**
 	 * Adds a filter that the given condition builder exists.
 	 *
-	 * @param QueryConditionBuilder $conditionBuilder
+	 * @param GraphBuilder $graphBuilder
+	 * @return self
 	 */
-	public function filterExists( QueryConditionBuilder $conditionBuilder ) {
+	public function filterExists( GraphBuilder $graphBuilder ) {
 		// @todo track variables and prefixes
-		$this->filters[] = 'EXISTS {' . $conditionBuilder->getSPARQL() . ' }';
+		$this->filters[] = 'EXISTS {' . $graphBuilder->getSPARQL() . ' }';
+
+		return $this;
 	}
 
 	/**
 	 * Adds a filter that the given condition builder does not exist.
 	 *
-	 * @param QueryConditionBuilder $conditionBuilder
+	 * @param GraphBuilder $graphBuilder
+	 * @return self
 	 */
-	public function filterNotExists( QueryConditionBuilder $conditionBuilder ) {
+	public function filterNotExists( GraphBuilder $graphBuilder ) {
 		// @todo track variables and prefixes
-		$this->filters[] = 'NOT EXISTS {' . $conditionBuilder->getSPARQL() . ' }';
+		$this->filters[] = 'NOT EXISTS {' . $graphBuilder->getSPARQL() . ' }';
+
+		return $this;
 	}
 
 	/**
