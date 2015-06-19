@@ -15,7 +15,7 @@ class ExpressionValidator {
 	/**
 	 * Accept all expressions
 	 */
-	const VALIDATE_ALL = 63;
+	const VALIDATE_ALL = 127;
 
 	/**
 	 * Accept variables
@@ -28,24 +28,29 @@ class ExpressionValidator {
 	const VALIDATE_IRI = 2;
 
 	/**
-	 * Accept prefixed IRIs
-	 */
-	const VALIDATE_PREFIXED_IRI = 4;
-
-	/**
 	 * Accept prefixes
 	 */
-	const VALIDATE_PREFIX = 8;
+	const VALIDATE_PREFIX = 4;
+
+	/**
+	 * Accept prefixed IRIs
+	 */
+	const VALIDATE_PREFIXED_IRI = 8;
+
+	/**
+	 * Accepts property paths
+	 */
+	const VALIDATE_PATH = 16;
 
 	/**
 	 * Accept functions
 	 */
-	const VALIDATE_FUNCTION = 16;
+	const VALIDATE_FUNCTION = 32;
 
 	/**
 	 * Accept functions with variable assignments
 	 */
-	const VALIDATE_FUNCTION_AS = 32;
+	const VALIDATE_FUNCTION_AS = 64;
 
 	/**
 	 * @var string[] list of natively supported functions
@@ -70,7 +75,7 @@ class ExpressionValidator {
 	/**
 	 * @var string regex to match IRIs
 	 */
-	private static $iri = '\<((\\.|[^\\<])+)\>';
+	private static $iri = '[^\s<>"{}|\\\\^`]+';
 
 	/**
 	 * @var string regex to match prefixes
@@ -94,20 +99,15 @@ class ExpressionValidator {
 
 	/**
 	 * Validates the given expression and tracks it.
-	 * The default options accept IRIs, prefixed IRIs and variables.
 	 * VALIDATE_PREFIX won't track prefixes.
 	 *
 	 * @param string $expression
 	 * @param int $options
 	 * @throws InvalidArgumentException
 	 */
-	public function validate( $expression, $options = -1 ) {
+	public function validate( $expression, $options ) {
 		if ( !is_string( $expression ) ) {
 			throw new InvalidArgumentException( '$expression has to be a string.' );
-		}
-
-		if ( $options < 0 ) {
-			$options = self::VALIDATE_IRI | self::VALIDATE_PREFIXED_IRI | self::VALIDATE_VARIABLE;
 		}
 
 		if ( !$this->matches( $expression, $options ) ) {
@@ -124,8 +124,9 @@ class ExpressionValidator {
 		$names = array(
 			'variable' => self::VALIDATE_VARIABLE,
 			'IRI' => self::VALIDATE_IRI,
-			'prefixed IRI' => self::VALIDATE_PREFIXED_IRI,
 			'prefix' => self::VALIDATE_PREFIX,
+			'prefixed IRI' => self::VALIDATE_PREFIXED_IRI,
+			'path' => self::VALIDATE_PATH,
 			'function' => self::VALIDATE_FUNCTION,
 			'function with variable assignment' => self::VALIDATE_FUNCTION_AS
 		);
@@ -157,8 +158,9 @@ class ExpressionValidator {
 	private function matches( $expression, $options ) {
 		return $this->isVariable( $expression, $options ) ||
 			$this->isIRI( $expression, $options ) ||
-			$this->isPrefixedIRI( $expression, $options ) ||
 			$this->isPrefix( $expression, $options ) ||
+			$this->isPrefixedIRI( $expression, $options ) ||
+			$this->isPath( $expression, $options ) ||
 			$this->isFunction( $expression, $options ) ||
 			$this->isFunctionAs( $expression, $options );
 	}
@@ -170,12 +172,7 @@ class ExpressionValidator {
 
 	private function isIRI( $expression, $options ) {
 		return $options & self::VALIDATE_IRI &&
-			( $expression === 'a' || $this->matchesRegex( self::$iri, $expression ) );
-	}
-
-	private function isPrefixedIRI( $expression, $options ) {
-		return $options & self::VALIDATE_PREFIXED_IRI &&
-			$this->matchesRegex( self::$prefix . ':' . self::$name, $expression );
+			$this->matchesRegex( self::$iri, $expression );
 	}
 
 	private function isPrefix( $expression, $options ) {
@@ -183,14 +180,26 @@ class ExpressionValidator {
 			$this->matchesRegex( self::$prefix, $expression );
 	}
 
-	private function isFunction( $expression, $options ) {
-		if ( !( $options & self::VALIDATE_FUNCTION ) ) {
-			return false;
-		}
+	private function isPrefixedIRI( $expression, $options ) {
+		return $options & self::VALIDATE_PREFIXED_IRI &&
+			$this->matchesRegex( $this->getPrefixedIRIRegex(), $expression );
+	}
 
+	private function isPath( $expression, $options ) {
+		// (?1) means the first subpattern (ie. the enclosing "()" brackets)
+		$prefixedIRI = '[\^!]*(a|' . $this->getPrefixedIRIRegex() . '|\((?1)\))(\?|\*|\+)?';
+		return $options & self::VALIDATE_PATH &&
+			$this->matchesRegex( '(' . $prefixedIRI . '([\/\|]' . $prefixedIRI . ')*)', $expression );
+	}
+
+	private function getPrefixedIRIRegex() {
+		return '(' . self::$prefix . ':' . self::$name . '|\<' . self::$iri . '\>)';
+	}
+
+	private function isFunction( $expression, $options ) {
 		// @todo this might not be complete
-		$allowed = array_merge( self::$functions, array( self::$iri, self::$prefix . ':', self::$variable ) );
-		return $this->matchesRegex( '(' . implode( '|', $allowed ) . ').*', $expression ) &&
+		return $options & self::VALIDATE_FUNCTION &&
+			$this->matchesRegex( $this->getFunctionRegex(), $expression ) &&
 			$this->checkBrackets( $expression );
 	}
 
@@ -201,8 +210,12 @@ class ExpressionValidator {
 
 	private function isFunctionAs( $expression, $options ) {
 		return $options & self::VALIDATE_FUNCTION_AS &&
-			$this->isFunction( $expression, self::VALIDATE_FUNCTION ) &&
-			$this->matchesRegex( '.* AS ' . self::$variable, $expression );
+			$this->matchesRegex( $this->getFunctionRegex() . ' AS ' . self::$variable, $expression );
+	}
+
+	private function getFunctionRegex() {
+		$allowed = array_merge( self::$functions, array( '\<' . self::$iri . '\>', self::$prefix . ':', self::$variable ) );
+		return '(' . implode( '|', $allowed ) . ').*';
 	}
 
 	private function matchesRegex( $regex, $expression ) {

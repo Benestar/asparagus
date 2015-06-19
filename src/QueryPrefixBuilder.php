@@ -38,13 +38,8 @@ class QueryPrefixBuilder {
 	 */
 	private function setPrefixes( array $prefixes ) {
 		foreach ( $prefixes as $prefix => $iri ) {
-			// @todo string concatenation makes bad values to strings
-			if ( !is_string( $iri ) ) {
-				throw new InvalidArgumentException( '$iri has to be a string' );
-			}
-
 			$this->expressionValidator->validate( $prefix, ExpressionValidator::VALIDATE_PREFIX );
-			$this->expressionValidator->validate( '<' . $iri . '>', ExpressionValidator::VALIDATE_IRI );
+			$this->expressionValidator->validate( $iri, ExpressionValidator::VALIDATE_IRI );
 
 			$this->prefixes[$prefix] = $iri;
 		}
