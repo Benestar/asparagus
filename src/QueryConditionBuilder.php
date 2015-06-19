@@ -85,13 +85,31 @@ class QueryConditionBuilder {
 	/**
 	 * Adds the given expression as a filter to this query.
 	 *
-	 * @todo provide convenience functions for EXISTS and NOT EXISTS
-	 *
 	 * @param string $expression
 	 */
 	public function filter( $expression ) {
 		$this->expressionValidator->validate( $expression, ExpressionValidator::VALIDATE_FUNCTION );
 		$this->filters[] = $expression;
+	}
+
+	/**
+	 * Adds a filter that the given condition builder exists.
+	 *
+	 * @param QueryConditionBuilder $conditionBuilder
+	 */
+	public function filterExists( QueryConditionBuilder $conditionBuilder ) {
+		// @todo track variables and prefixes
+		$this->filters[] = 'EXISTS {' . $conditionBuilder->getSPARQL() . ' }';
+	}
+
+	/**
+	 * Adds a filter that the given condition builder does not exist.
+	 *
+	 * @param QueryConditionBuilder $conditionBuilder
+	 */
+	public function filterNotExists( QueryConditionBuilder $conditionBuilder ) {
+		// @todo track variables and prefixes
+		$this->filters[] = 'NOT EXISTS {' . $conditionBuilder->getSPARQL() . ' }';
 	}
 
 	/**

@@ -84,6 +84,22 @@ class QueryConditionBuilderTest extends \PHPUnit_Framework_TestCase {
 		$conditionBuilder->filter( 'FooBar' );
 	}
 
+	public function testFilterExists() {
+		$conditionBuilder = new QueryConditionBuilder();
+		$conditionBuilder->where( '?a', '?b', '?c' );
+		$conditionBuilder->filterExists( $conditionBuilder );
+
+		$this->assertEquals( ' ?a ?b ?c . FILTER EXISTS { ?a ?b ?c . }', $conditionBuilder->getSPARQL() );
+	}
+
+	public function testFilterNotExists() {
+		$conditionBuilder = new QueryConditionBuilder();
+		$conditionBuilder->where( '?a', '?b', '?c' );
+		$conditionBuilder->filterNotExists( $conditionBuilder );
+
+		$this->assertEquals( ' ?a ?b ?c . FILTER NOT EXISTS { ?a ?b ?c . }', $conditionBuilder->getSPARQL() );
+	}
+
 	public function testGetSPARQL() {
 		$conditionBuilder = new QueryConditionBuilder();
 		$conditionBuilder->where( '?a', '?b', '?c' );
