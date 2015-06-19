@@ -94,6 +94,14 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testOptional() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->optional( '?a', '?b', '?c' )
+		);
+	}
+
 	public function testGroupBy() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(

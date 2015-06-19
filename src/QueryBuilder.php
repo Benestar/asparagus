@@ -203,6 +203,22 @@ class QueryBuilder {
 	}
 
 	/**
+	 * Adds the given graph or triple as an optional condition.
+	 *
+	 * @since 0.3
+	 *
+	 * @param string|GraphBuilder $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function optional( $subject, $predicate = null, $object = null ) {
+		$this->graphBuilder->optional( $subject, $predicate, $object );
+		return $this;
+	}
+
+	/**
 	 * Sets the GROUP BY modifier.
 	 *
 	 * @param string $expression

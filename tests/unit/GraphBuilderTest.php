@@ -100,6 +100,21 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( ' ?a ?b ?c . FILTER NOT EXISTS { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
 
+	public function testOptional_triple() {
+		$graphBuilder = new GraphBuilder();
+		$graphBuilder->optional( '?a', '?b', '?c' );
+
+		$this->assertEquals( ' OPTIONAL { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
+	}
+
+	public function testOptional_graph() {
+		$graphBuilder = new GraphBuilder();
+		$graphBuilder->where( '?a', '?b', '?c' );
+		$graphBuilder->optional( $graphBuilder );
+
+		$this->assertEquals( ' ?a ?b ?c . OPTIONAL { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
+	}
+
 	public function testGetSPARQL() {
 		$graphBuilder = new GraphBuilder();
 		$graphBuilder->where( '?a', '?b', '?c' );

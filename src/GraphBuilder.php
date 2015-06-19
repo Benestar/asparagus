@@ -27,6 +27,11 @@ class GraphBuilder {
 	private $filters = array();
 
 	/**
+	 * @var string[] list of optional expressions
+	 */
+	private $optionals = array();
+
+	/**
 	 * @var string
 	 */
 	private $currentSubject = null;
@@ -41,8 +46,18 @@ class GraphBuilder {
 	 */
 	private $expressionValidator;
 
-	public function __construct() {
+	/**
+	 * @param string|null $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
+	 * @throws InvalidArgumentException
+	 */
+	public function __construct( $subject = null, $predicate = null, $object = null ) {
 		$this->expressionValidator = new ExpressionValidator();
+
+		if ( $subject !== null && $predicate !== null && $object !== null ) {
+			$this->where( $subject, $predicate, $object );
+		}
 	}
 
 	/**
@@ -135,6 +150,25 @@ class GraphBuilder {
 	}
 
 	/**
+	 * Adds the given graph or triple as an optional condition.
+	 *
+	 * @param string|GraphBuilder $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function optional( $subject, $predicate = null, $object = null ) {
+		if ( !( $subject instanceof GraphBuilder ) ) {
+			$subject = new GraphBuilder( $subject, $predicate, $object );
+		}
+
+		$this->optionals[] = $subject->getSPARQL();
+
+		return $this;
+	}
+
+	/**
 	 * Returns the plain SPARQL string of these conditions.
 	 * Surrounding brackets are not included.
 	 *
@@ -149,6 +183,7 @@ class GraphBuilder {
 		}
 
 		$sparql .= $this->formatFilters();
+		$sparql .= $this->formatOptionals();
 
 		return $sparql;
 	}
@@ -163,6 +198,12 @@ class GraphBuilder {
 		return implode( array_map( function( $filter ) {
 			return ' FILTER ' . $filter;
 		}, $this->filters ) );
+	}
+
+	private function formatOptionals() {
+		return implode( array_map( function( $optional ) {
+			return ' OPTIONAL {' . $optional . ' }';
+		}, $this->optionals ) );
 	}
 
 	/**
