@@ -99,6 +99,10 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 * Added `QueryBuilder::filter` to add basic query filters
 
+### 0.2.1 (2015-06-19)
+
+* Fixed README.md to use prefixed variables in `QueryBuildre::select`
+
 ### 0.2 (2015-06-18)
 
 * Renamed `QueryBuilder::plus` to `QueryBuilder::also`
