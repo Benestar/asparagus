@@ -67,7 +67,7 @@ $prefixes = array(
 );
 
 $queryBuilder = new QueryBuilder( $prefixes );
-$queryBuilder->select( 'name', 'email' )
+$queryBuilder->select( '?name', '?email' )
 	->where( '?person', 'test:name', '?name' )
 	->also( 'test:email', '?email' )
 	->limit( 10 );
@@ -94,6 +94,10 @@ tests using the PHPUnit configuration file found in the root directory. The test
 via TravisCI, as a TravisCI configuration file is also provided in the root directory.
 
 ## Release notes
+
+### 0.2.1 (2015-06-19)
+
+* Fixed README.md to use prefixed variables in `QueryBuildre::select`
 
 ### 0.2 (2015-06-18)
 
