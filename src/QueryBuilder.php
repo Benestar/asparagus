@@ -116,10 +116,21 @@ class QueryBuilder {
 	/**
 	 * Creates a new subquery builder.
 	 *
-	 * @return self
+	 * @return QueryBuilder
 	 */
 	public function newSubquery() {
 		return new QueryBuilder( $this->prefixBuilder->getPrefixes() );
+	}
+
+	/**
+	 * Creates a new subgraph builder.
+	 *
+	 * @since 0.3
+	 *
+	 * @return GraphBuilder
+	 */
+	public function newSubgraph() {
+		return new GraphBuilder();
 	}
 
 	/**
@@ -162,6 +173,32 @@ class QueryBuilder {
 	 */
 	public function filter( $expression ) {
 		$this->graphBuilder->filter( $expression );
+		return $this;
+	}
+
+	/**
+	 * Adds a filter that the given condition builder exists.
+	 *
+	 * @since 0.3
+	 *
+	 * @param GraphBuilder $graphBuilder
+	 * @return self
+	 */
+	public function filterExists( GraphBuilder $graphBuilder ) {
+		$this->graphBuilder->filterExists( $graphBuilder );
+		return $this;
+	}
+
+	/**
+	 * Adds a filter that the given condition builder does not exist.
+	 *
+	 * @since 0.3
+	 *
+	 * @param GraphBuilder $graphBuilder
+	 * @return self
+	 */
+	public function filterNotExists( GraphBuilder $graphBuilder ) {
+		$this->graphBuilder->filterNotExists( $graphBuilder );
 		return $this;
 	}
 

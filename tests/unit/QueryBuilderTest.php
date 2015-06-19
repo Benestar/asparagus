@@ -2,6 +2,7 @@
 
 namespace Asparagus\Tests;
 
+use Asparagus\GraphBuilder;
 use Asparagus\QueryBuilder;
 
 /**
@@ -74,6 +75,22 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertSame(
 			$queryBuilder,
 			$queryBuilder->filter( 'AVG (?x) > 9' )
+		);
+	}
+
+	public function testFilterExists() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->filterExists( new GraphBuilder() )
+		);
+	}
+
+	public function testFilterNotExists() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->filterNotExists( new GraphBuilder() )
 		);
 	}
 
