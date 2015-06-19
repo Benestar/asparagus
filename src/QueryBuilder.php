@@ -161,6 +161,10 @@ class QueryBuilder {
 		return $this;
 	}
 
+	public function optional( $expression ) {
+		$this->conditionBuilder->optional( $expression );
+	}
+
 	public function newSubgraph() {
 		return new QueryConditionBuilder();
 	}

@@ -65,30 +65,36 @@ class QueryConditionBuilder {
 	 * Adds the given triple as a condition.
 	 *
 	 * @param string|self $subject
-	 * @param string $predicate
-	 * @param string $object
+	 * @param string|null $predicate
+	 * @param string|null $object
 	 * @return self
 	 * @throws InvalidArgumentException
 	 */
-	public function where( $subject, $predicate, $object ) {
+	public function where( $subject, $predicate = null, $object = null ) {
 		if ( $this->currentCondition !== null ) {
 			$this->subgraphs[] = $this->currentCondition;
 			$this->currentCondition = null;
 		}
 
-		$this->expressionValidator->validate( $subject,
-			ExpressionValidator::VALIDATE_PREFIXED_IRI | ExpressionValidator::VALIDATE_VARIABLE
-		);
-		$this->expressionValidator->validate( $predicate,
-			ExpressionValidator::VALIDATE_PATH | ExpressionValidator::VALIDATE_VARIABLE
-		);
-		$this->expressionValidator->validate( $object,
-			ExpressionValidator::VALIDATE_PREFIXED_IRI | ExpressionValidator::VALIDATE_VARIABLE
-		);
+		if ( $subject instanceof self ) {
+			$this->currentCondition = $subject;
+			$this->currentSubject = null;
+			$this->currentPredicate = null;
+		} else {
+			$this->expressionValidator->validate( $subject,
+				ExpressionValidator::VALIDATE_PREFIXED_IRI | ExpressionValidator::VALIDATE_VARIABLE
+			);
+			$this->expressionValidator->validate( $predicate,
+				ExpressionValidator::VALIDATE_PATH | ExpressionValidator::VALIDATE_VARIABLE
+			);
+			$this->expressionValidator->validate( $object,
+				ExpressionValidator::VALIDATE_PREFIXED_IRI | ExpressionValidator::VALIDATE_VARIABLE
+			);
 
-		$this->currentSubject = $subject;
-		$this->currentPredicate = $predicate;
-		$this->conditions[$subject][$predicate][] = $object;
+			$this->currentSubject = $subject;
+			$this->currentPredicate = $predicate;
+			$this->conditions[$subject][$predicate][] = $object;
+		}
 
 		return $this;
 	}
@@ -119,33 +125,56 @@ class QueryConditionBuilder {
 	 * Adds the given expression as filter.
 	 *
 	 * @param string $expression
+	 * @return self
+	 * @throws InvalidArgumentException
 	 */
 	public function filter( $expression ) {
 		$this->expressionValidator->validate( $expression, ExpressionValidator::VALIDATE_FUNCTION );
 		$this->filters[] = $expression;
+		return $this;
 	}
 
 	/**
 	 * Adds the given group graph pattern as optional.
 	 *
-	 * @param QueryConditionBuilder $conditionBuilder
+	 * @param string|self $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
+	 * @return self
+	 * @throws InvalidArgumentException
 	 */
-	public function optional( QueryConditionBuilder $conditionBuilder ) {
-		$this->optionals[] = $conditionBuilder;
+	public function optional( $subject, $predicate = null, $object = null ) {
+		if ( !( $subject instanceof self ) ) {
+			$subject = new QueryConditionBuilder();
+			$subject->where( $subject, $predicate, $object );
+		}
+
+		$this->optionals[] = $subject;
+		return $this;
 	}
 
 	/**
 	 * Adds the given group graph pattern as union.
 	 *
-	 * @param QueryConditionBuilder $conditionBuilder
+	 * @param string|self $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
+	 * @return self
+	 * @throws InvalidArgumentException
 	 */
-	public function union( QueryConditionBuilder $conditionBuilder ) {
+	public function union( $subject, $predicate = null, $object = null ) {
 		if ( $this->currentCondition !== null ) {
 			$this->unions[] = $this->currentCondition;
 			$this->currentCondition = null;
 		}
 
-		$this->unions[] = $conditionBuilder;
+		if ( !( $subject instanceof self ) ) {
+			$subject = new QueryConditionBuilder();
+			$subject->where( $subject, $predicate, $object );
+		}
+
+		$this->unions[] = $subject;
+		return $this;
 	}
 
 	/**
@@ -189,9 +218,9 @@ class QueryConditionBuilder {
 	}
 
 	private function formatUnions() {
-		return implode( ' UNION', function( QueryConditionBuilder $conditionBuilder ) {
+		return implode( ' UNION', array_map( function( QueryConditionBuilder $conditionBuilder ) {
 			return ' {' . $conditionBuilder->getSPARQL() . ' }';
-		}, $this->unions );
+		}, $this->unions ) );
 	}
 
 	private function formatSubgraphs() {
