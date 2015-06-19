@@ -70,6 +70,20 @@ class QueryConditionBuilderTest extends \PHPUnit_Framework_TestCase {
 		$conditionBuilder->also( '?y' );
 	}
 
+	public function testFilter() {
+		$conditionBuilder = new QueryConditionBuilder();
+		$conditionBuilder->filter( 'AVG (?x) > 5' );
+
+		$this->assertEquals( ' FILTER AVG (?x) > 5', $conditionBuilder->getSPARQL() );
+	}
+
+	public function testFilter_invalidExpression() {
+		$conditionBuilder = new QueryConditionBuilder();
+		$this->setExpectedException( 'InvalidArgumentException' );
+
+		$conditionBuilder->filter( 'FooBar' );
+	}
+
 	public function testGetSPARQL() {
 		$conditionBuilder = new QueryConditionBuilder();
 		$conditionBuilder->where( '?a', '?b', '?c' );

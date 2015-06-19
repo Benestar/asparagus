@@ -152,6 +152,20 @@ class QueryBuilder {
 	}
 
 	/**
+	 * Adds the given expression as a filter to this query.
+	 *
+	 * @since 0.3
+	 *
+	 * @param string $expression
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function filter( $expression ) {
+		$this->conditionBuilder->filter( $expression );
+		return $this;
+	}
+
+	/**
 	 * Sets the GROUP BY modifier.
 	 *
 	 * @param string $expression

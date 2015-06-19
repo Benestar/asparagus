@@ -18,6 +18,11 @@ class QueryConditionBuilder {
 	private $conditions = array();
 
 	/**
+	 * @var string[] list of filter expressions
+	 */
+	private $filters = array();
+
+	/**
 	 * @var string
 	 */
 	private $currentSubject = null;
@@ -78,6 +83,18 @@ class QueryConditionBuilder {
 	}
 
 	/**
+	 * Adds the given expression as a filter to this query.
+	 *
+	 * @todo provide convenience functions for EXISTS and NOT EXISTS
+	 *
+	 * @param string $expression
+	 */
+	public function filter( $expression ) {
+		$this->expressionValidator->validate( $expression, ExpressionValidator::VALIDATE_FUNCTION );
+		$this->filters[] = $expression;
+	}
+
+	/**
 	 * Returns the plain SPARQL string of these conditions.
 	 * Surrounding brackets are not included.
 	 *
@@ -91,6 +108,8 @@ class QueryConditionBuilder {
 			$sparql .= $this->formatPredicates( $predicates ) . ' .';
 		}
 
+		$sparql .= $this->formatFilters();
+
 		return $sparql;
 	}
 
@@ -98,6 +117,12 @@ class QueryConditionBuilder {
 		return implode( ' ;', array_map( function( $predicate, $objects ) {
 			return ' ' . $predicate . ' ' . implode( ' , ', $objects );
 		}, array_keys( $predicates ), $predicates ) );
+	}
+
+	private function formatFilters() {
+		return implode( array_map( function( $filter ) {
+			return ' FILTER ' . $filter;
+		}, $this->filters ) );
 	}
 
 	/**

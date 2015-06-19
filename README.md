@@ -95,6 +95,10 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ## Release notes
 
+### 0.3 (dev)
+
+* Added `QueryBuilder::filter` to add basic query filters
+
 ### 0.2 (2015-06-18)
 
 * Renamed `QueryBuilder::plus` to `QueryBuilder::also`

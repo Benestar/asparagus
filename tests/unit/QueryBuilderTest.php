@@ -69,6 +69,14 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testFilter() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->filter( 'AVG (?x) > 9' )
+		);
+	}
+
 	public function testGroupBy() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
