@@ -44,6 +44,11 @@ class QueryBuilder {
 	private $conditionBuilder;
 
 	/**
+	 * @var QueryConditionBuilder
+	 */
+	private $lastCondition;
+
+	/**
 	 * @var QueryModifierBuilder
 	 */
 	private $modifierBuilder;
@@ -125,7 +130,7 @@ class QueryBuilder {
 	/**
 	 * Adds the given triple as a condition.
 	 *
-	 * @param string $subject
+	 * @param string|QueryConditionBuilder $subject
 	 * @param string $predicate
 	 * @param string $object
 	 * @return self
@@ -149,6 +154,19 @@ class QueryBuilder {
 	public function also( $subject, $predicate = null, $object = null ) {
 		$this->conditionBuilder->also( $subject, $predicate, $object );
 		return $this;
+	}
+
+	public function filter( $expression ) {
+		$this->conditionBuilder->filter( $expression );
+		return $this;
+	}
+
+	public function optional( $expression ) {
+		$this->conditionBuilder->optional( $expression );
+	}
+
+	public function newSubgraph() {
+		return new QueryConditionBuilder();
 	}
 
 	/**
