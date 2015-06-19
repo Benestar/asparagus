@@ -63,16 +63,18 @@ class QueryConditionBuilder {
 	 * Adds the given triple/double/single value as an additional condition
 	 * to the previously added condition.
 	 *
-	 * @param string|null $subject
+	 * @param string $subject
 	 * @param string|null $predicate
-	 * @param string $object
+	 * @param string|null $object
 	 */
-	public function also( $subject, $predicate, $object ) {
-		$this->where(
-			$subject ?: $this->currentSubject,
-			$predicate ?: $this->currentPredicate,
-			$object
-		);
+	public function also( $subject, $predicate = null, $object = null ) {
+		if ( $predicate === null ) {
+			$this->where( $this->currentSubject, $this->currentPredicate, $subject );
+		} else if ( $object === null ) {
+			$this->where( $this->currentSubject, $subject, $predicate );
+		} else {
+			$this->where( $subject, $predicate, $object );
+		}
 	}
 
 	/**

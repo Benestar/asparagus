@@ -147,13 +147,7 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function also( $subject, $predicate = null, $object = null ) {
-		if ( $predicate === null ) {
-			$this->conditionBuilder->also( null, null, $subject );
-		} else if ( $object === null ) {
-			$this->conditionBuilder->also( null, $subject, $predicate );
-		} else {
-			$this->conditionBuilder->also( $subject, $predicate, $object );
-		}
+		$this->conditionBuilder->also( $subject, $predicate, $object );
 		return $this;
 	}
 
