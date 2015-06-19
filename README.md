@@ -67,7 +67,7 @@ $prefixes = array(
 );
 
 $queryBuilder = new QueryBuilder( $prefixes );
-$queryBuilder->select( 'name', 'email' )
+$queryBuilder->select( '?name', '?email' )
 	->where( '?person', 'test:name', '?name' )
 	->also( 'test:email', '?email' )
 	->limit( 10 );
