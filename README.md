@@ -88,7 +88,10 @@ LIMIT 10
 ```
 
 More complex queries can be built by using subgraphs or subqueries. To create a new subgrapho or
-subquery, you can call `QueryBuilder::newSubgraph` or `QueryBuilder::newSubquery`.
+subquery, you can call `QueryBuilder::newSubgraph` or `QueryBuilder::newSubquery`. `GraphBuilder`
+supports all graph functions also supported by `QueryBuilder` and it will return itself as well.
+
+The following snippet creates a more complex query using optional values and filters:
 
 ## Tests
 
@@ -110,7 +113,7 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ### 0.2.1 (2015-06-19)
 
-* Fixed README.md to use prefixed variables in `QueryBuildre::select`
+* Fixed README.md to use prefixed variables in `QueryBuilder::select`
 
 ### 0.2 (2015-06-18)
 
