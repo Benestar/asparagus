@@ -104,6 +104,31 @@ class WDQSQueryExamplesTest extends \PHPUnit_Framework_TestCase {
 		$this->assertIsExpected( 'Largest_cities_with_female_mayor', $queryBuilder->format() );
 	}
 
+	public function testListOfCountriesOrderedByTheNumberOfTheirCitiesWithFemaleMayor() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?country', '?label', '(COUNT(*) AS ?COUNT)' )
+			->where( '?city', 'wdt:P31/wdt:P279*', 'wd:Q515' )
+			->also( 'p:P6', '?statement' )
+			->also( 'wdt:P17', '?country' )
+			->where( '?statement', 'v:P6', '?mayor' )
+			->where( '?mayor', 'wdt:P21', 'wd:Q6581072' )
+			->filterNotExists(
+				$queryBuilder->newSubgraph()
+					->where( '?statement', 'q:P582', '?x' )
+			)
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?country', 'rdfs:label', '?label' )
+					->filter( 'LANG(?label) = "en"' )
+			)
+			->groupBy( '?country', '?label' )
+			->orderBy( '?COUNT', 'DESC' )
+			->limit( 100 );
+
+		$this->assertIsExpected( 'List_of_countries_ordered_by_the_number_of_their_cities_with_female_mayor', $queryBuilder->format() );
+	}
+
 	private function assertIsExpected( $name, $sparql ) {
 		$expected = file_get_contents( __DIR__ . '/../data/builder_' . $name . '.rq' );
 

@@ -33,15 +33,18 @@ class QueryModifierBuilder {
 	}
 
 	/**
-	 * Sets the GROUP BY modifier.
+	 * Sets the GROUP BY modifiers.
 	 *
-	 * @param string $expression
+	 * @param string[] $expressions
 	 */
-	public function groupBy( $expression )  {
-		$this->expressionValidator->validate( $expression,
-			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
-		);
+	public function groupBy( array $expressions )  {
+		foreach ( $expressions as $expression ) {
+			$this->expressionValidator->validate( $expression,
+				ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
+			);
+		}
 
+		$expression = implode( ' ', $expressions );
 		$this->usageValidator->trackUsedPrefixes( $expression );
 		$this->usageValidator->trackUsedVariables( $expression );
 		$this->modifiers['GROUP BY'] = $expression;

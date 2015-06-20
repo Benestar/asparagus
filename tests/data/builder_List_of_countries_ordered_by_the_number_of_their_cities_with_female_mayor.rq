@@ -1,0 +1,24 @@
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX v: <http://www.wikidata.org/prop/statement/>
+PREFIX q: <http://www.wikidata.org/prop/qualifier/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?country ?label (COUNT (*) AS ?COUNT) WHERE {
+	?city wdt:P31/wdt:P279* wd:Q515 ;
+		p:P6 ?statement ;
+		wdt:P17 ?country .
+	?statement v:P6 ?mayor .
+	?mayor wdt:P21 wd:Q6581072 .
+	FILTER NOT EXISTS {
+		?statement q:P582 ?x .
+	}
+	OPTIONAL {
+		?country rdfs:label ?label .
+		FILTER (LANG (?label) = "en")
+	}
+}
+GROUP BY ?country ?label ORDER BY DESC (?COUNT) LIMIT 100

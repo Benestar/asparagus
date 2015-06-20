@@ -15,7 +15,7 @@ class QueryModifierBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGroupByModifier() {
 		$queryBuilder = new QueryModifierBuilder( new UsageValidator() );
-		$queryBuilder->groupBy( '?test' );
+		$queryBuilder->groupBy( array( '?test' ) );
 
 		$this->assertEquals( ' GROUP BY ?test', $queryBuilder->getSPARQL() );
 	}
@@ -24,7 +24,7 @@ class QueryModifierBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryModifierBuilder( new UsageValidator() );
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		$queryBuilder->groupBy( null );
+		$queryBuilder->groupBy( array( null ) );
 	}
 
 	public function testHavingModifier() {

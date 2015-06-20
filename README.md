@@ -111,6 +111,7 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 * Added `QueryBuilder::optional`
 * Added `QueryBuilder::newSubgraph`
 * `QueryBuilder::select` and `QueryBuilder::groupBy` now require functions to be wrapped by brackets.
+* `QueryBuilder::groupBy` now accepts multiple arguments
 
 ### 0.2.1 (2015-06-19)
 

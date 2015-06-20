@@ -89,6 +89,12 @@ class QueryBuilder {
 				ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
 			);
 
+			// @todo temp hack to add AS definitions to defined variables
+			$regexHelper = new RegexHelper();
+			$matches = $regexHelper->getMatches( 'AS \{variable}', $expression );
+			$this->usageValidator->trackDefinedVariables( $matches );
+
+			// @todo detect functions and wrap with brackets automatically
 			$this->usageValidator->trackUsedVariables( $expression );
 			$this->selects[] = $expression;
 		}
@@ -242,12 +248,14 @@ class QueryBuilder {
 	/**
 	 * Sets the GROUP BY modifier.
 	 *
-	 * @param string $expression
+	 * @param string|string[] $expressions
 	 * @return self
 	 * @throws InvalidArgumentException
 	 */
-	public function groupBy( $expression )  {
-		$this->modifierBuilder->groupBy( $expression );
+	public function groupBy( $expressions /* expressions ... */ )  {
+		$expressions = is_array( $expressions ) ? $expressions : func_get_args();
+
+		$this->modifierBuilder->groupBy( $expressions );
 		return $this;
 	}
 
