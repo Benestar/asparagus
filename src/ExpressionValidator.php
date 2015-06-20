@@ -142,7 +142,7 @@ class ExpressionValidator {
 	}
 
 	private function checkBrackets( $expression ) {
-		$expression = preg_replace( '/"((\\.|[^\\"])*)"/', '', $expression );
+		$expression = $this->regexHelper->escapeSequences( $expression );
 		return substr_count( $expression, '(' ) === substr_count( $expression, ')' );
 	}
 

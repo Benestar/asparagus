@@ -36,6 +36,38 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder->select( '?a', false );
 	}
 
+	public function testSelectDistinct() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->selectDistinct( '?a', '?b' )
+		);
+
+		// use variables ?a and ?b
+		$queryBuilder->where( '?a', '?b', '?c' );
+
+		$this->assertEquals(
+			'SELECT DISTINCT ?a ?b WHERE { ?a ?b ?c . }',
+			$queryBuilder->getSPARQL()
+		);
+	}
+
+	public function testSelectReduced() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->selectReduced( '?a', '?b' )
+		);
+
+		// use variables ?a and ?b
+		$queryBuilder->where( '?a', '?b', '?c' );
+
+		$this->assertEquals(
+			'SELECT REDUCED ?a ?b WHERE { ?a ?b ?c . }',
+			$queryBuilder->getSPARQL()
+		);
+	}
+
 	public function testWhere() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(

@@ -68,7 +68,7 @@ class QueryFormatter {
 	}
 
 	private function before( $part ) {
-		if ( $part === 'PREFIX' || $part === '}' ) {
+		if ( in_array( $part, array( 'PREFIX', 'FILTER', 'OPTIONAL', '}' ) ) ) {
 			$this->trimEnd();
 			$this->formattedParts[] = "\n";
 		}

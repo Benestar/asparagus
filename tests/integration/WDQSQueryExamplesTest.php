@@ -17,7 +17,8 @@ class WDQSQueryExamplesTest extends \PHPUnit_Framework_TestCase {
 		'p' => 'http://www.wikidata.org/prop/',
 		'v' => 'http://www.wikidata.org/prop/statement/',
 		'q' => 'http://www.wikidata.org/prop/qualifier/',
-		'rdfs' => 'http://www.w3.org/2000/01/rdf-schema#'
+		'rdfs' => 'http://www.w3.org/2000/01/rdf-schema#',
+		'xsd' => 'http://www.w3.org/2001/XMLSchema#'
 	);
 
 	public function testUSPresidentsAndSpouses() {
@@ -38,6 +39,69 @@ class WDQSQueryExamplesTest extends \PHPUnit_Framework_TestCase {
 			);
 
 		$this->assertIsExpected( 'US_presidents_and_spouses', $queryBuilder->format() );
+	}
+
+	public function testPresidentsAndCausesOfDeath() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?h', '?cause', '?hl', '?causel' )
+			->where( '?h', 'wdt:P39', 'wd:Q11696' )
+			->also( 'wdt:P509', '?cause' )
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?h', 'rdfs:label', '?hl' )
+					->filter( 'LANG(?hl) = "en"' )
+			)
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?cause', 'rdfs:label', '?causel' )
+					->filter( 'LANG(?causel) = "en"' )
+			);
+
+		$this->assertIsExpected( 'Presidents_and_causes_of_death', $queryBuilder->format() );
+	}
+
+	public function testPeopleBornBeforeYear1880WithNoDeathDate() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?h', '?date' )
+			->where( '?h', 'wdt:P31', 'wd:Q5' )
+			->also( 'wdt:P569', '?date' )
+			->optional( '?h', 'wdt:P570', '?d' )
+			->filter( '?date < "1880-01-01T00:00:00Z"^^xsd:dateTime' )
+			->filter( '!BOUND(?d)' )
+			->limit( 100 );
+
+		$this->assertIsExpected( 'People_born_before_year_1880_with_no_death_date', $queryBuilder->format() );
+	}
+
+	public function testLargestCitiesWithFemaleMayor() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->selectDistinct( '?city', '?citylabel', '?mayorlabel' )
+			->where( '?city', 'wdt:P31/wdt:P279*', 'wd:Q515' )
+			->also( 'p:P6', '?statement' )
+			->also( 'wdt:P1082', '?population' )
+			->where( '?statement', 'v:P6', '?mayor' )
+			->where( '?mayor', 'wdt:P21', 'wd:Q6581072' )
+			->filterNotExists(
+				$queryBuilder->newSubgraph()
+					->where( '?statement', 'q:P582', '?x' )
+			)
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?city', 'rdfs:label', '?citylabel' )
+					->filter( 'LANG(?citylabel) = "en"' )
+			)
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?mayor', 'rdfs:label', '?mayorlabel' )
+					->filter( 'LANG(?mayorlabel) = "en"' )
+			)
+			->orderBy( '?population', 'DESC' )
+			->limit( 10 );
+
+		$this->assertIsExpected( 'Largest_cities_with_female_mayor', $queryBuilder->format() );
 	}
 
 	private function assertIsExpected( $name, $sparql ) {

@@ -39,6 +39,11 @@ class QueryBuilder {
 	private $variables = array();
 
 	/**
+	 * @var string uniqueness constraint, one of DISTINCT, REDUCED or empty
+	 */
+	private $uniqueness = '';
+
+	/**
 	 * @var GraphBuilder
 	 */
 	private $graphBuilder;
@@ -87,6 +92,32 @@ class QueryBuilder {
 			$this->variables[] = substr( $variable, 1 );
 		}
 
+		return $this;
+	}
+
+	/**
+	 * Specifies the variables to select with duplicates eliminated.
+	 *
+	 * @param string|string[] $variables
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function selectDistinct( /* variables ... */ ) {
+		call_user_func_array( array( $this, 'select' ), func_get_args() );
+		$this->uniqueness = 'DISTINCT ';
+		return $this;
+	}
+
+	/**
+	 * Specifies the variables to select with duplicates allowed.
+	 *
+	 * @param string|string[] $variables
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function selectReduced( /* variables ... */ ) {
+		call_user_func_array( array( $this, 'select' ), func_get_args() );
+		$this->uniqueness = 'REDUCED ';
 		return $this;
 	}
 
@@ -285,7 +316,7 @@ class QueryBuilder {
 		$this->usageValidator->validate();
 
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
-		$sparql .= 'SELECT ' . $this->formatVariables() . ' WHERE';
+		$sparql .= 'SELECT ' . $this->uniqueness . $this->formatVariables() . ' WHERE';
 		$sparql .= ' {' . $this->graphBuilder->getSPARQL() . ' }';
 		$sparql .= $this->modifierBuilder->getSPARQL();
 

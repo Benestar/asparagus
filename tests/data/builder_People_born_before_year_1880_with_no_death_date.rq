@@ -7,15 +7,13 @@ PREFIX q: <http://www.wikidata.org/prop/qualifier/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?p ?w ?l ?wl WHERE {
-	wd:Q30 p:P6/v:P6 ?p .
-	?p wdt:P26 ?w .
+SELECT ?h ?date WHERE {
+	?h wdt:P31 wd:Q5 ;
+		wdt:P569 ?date .
+	FILTER (?date < "1880-01-01T00:00:00Z"^^xsd:dateTime)
+	FILTER (!BOUND (?d))
 	OPTIONAL {
-		?p rdfs:label ?l .
-		FILTER (LANG (?l) = "en")
-	}
-	OPTIONAL {
-		?w rdfs:label ?wl .
-		FILTER (LANG (?wl) = "en")
+		?h wdt:P570 ?d .
 	}
 }
+LIMIT 100

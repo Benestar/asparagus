@@ -104,10 +104,11 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 ### 0.3 (dev)
 
 * Changes in `QueryBuilder`
-  * Added `QueryBuilder::newSubgraph`
+  * Added `QueryBuilder::selectDistinct` and `QueryBuilder::selectReduced`
   * Added `QueryBuilder::getVariables`
   * Added `QueryBuilder::filter`, `QueryBuilder::filterExists` and `QueryBuilder::filterNotExists`
   * Added `QueryBuilder::optional`
+  * Added `QueryBuilder::newSubgraph`
   * Removed `QueryBuilder::hasSubquery`
 * Renamed previously package-private `QueryConditionBuilder` to `GraphBuilder`
 

@@ -62,10 +62,7 @@ class RegexHelper {
 	 * @return bool
 	 */
 	public function matchesRegex( $regex, $expression ) {
-		return preg_match(
-			'/^' . $this->resolveMagic( $regex ) . '$/i',
-			$this->escapeSequences( $expression )
-		);
+		return preg_match( '/^' . $this->resolveMagic( $regex ) . '$/i', $expression );
 	}
 
 	/**
@@ -77,9 +74,11 @@ class RegexHelper {
 	 * @return string[]
 	 */
 	public function getMatches( $regex, $expression, $group = 1 ) {
-		if ( preg_match_all( '/' . $this->resolveMagic( $regex ) . '/',
-			$this->escapeSequences( $expression ), $matches )
-		) {
+		if ( preg_match_all(
+			'/' . $this->resolveMagic( $regex ) . '/',
+			$this->escapeSequences( $expression ),
+			$matches
+		) ) {
 			return $matches[$group];
 		}
 
@@ -130,7 +129,7 @@ class RegexHelper {
 	}
 
 	private function getFunctionRegex() {
-		$allowed = array_merge( self::$functions, array( '\<' . self::$iri . '\>', self::$prefix . ':', self::$variable ) );
+		$allowed = array_merge( self::$functions, array( '\<' . self::$iri . '\>', self::$prefix . ':', self::$variable, '!' ) );
 		return '(' . implode( '|', $allowed ) . ').*';
 	}
 
