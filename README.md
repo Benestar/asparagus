@@ -101,6 +101,7 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 * Renamed previously package-private `QueryConditionBuilder` to `GraphBuilder`
 * Added `QueryBuilder::newSubgraph` as an alias for `new GraphBuilder()`
 * Added `QueryBuilder::optional` for optional conditions
+* Removed `QueryBuilder::hasSubquery`
 
 ### 0.2.1 (2015-06-19)
 

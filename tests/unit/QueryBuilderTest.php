@@ -102,6 +102,30 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testSubquery() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->subquery( $queryBuilder )
+		);
+	}
+
+	public function testNewSubquery() {
+		$queryBuilder = new QueryBuilder( array( 'a' => 'b' ) );
+		$this->assertEquals(
+			new QueryBuilder( array( 'a' => 'b' ) ),
+			$queryBuilder->newSubquery()
+		);
+	}
+
+	public function testNewSubgraph() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertEquals(
+			new GraphBuilder(),
+			$queryBuilder->newSubgraph()
+		);
+	}
+
 	public function testGroupBy() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(

@@ -32,6 +32,11 @@ class GraphBuilder {
 	private $optionals = array();
 
 	/**
+	 * @var string[] list of subqueries
+	 */
+	private $subqueries = array();
+
+	/**
 	 * @var string
 	 */
 	private $currentSubject = null;
@@ -169,13 +174,28 @@ class GraphBuilder {
 	}
 
 	/**
+	 * Adds the given subquery.
+	 *
+	 * @param QueryBuilder $queryBuilder
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function subquery( QueryBuilder $queryBuilder ) {
+		// @todo track variables
+		$this->subqueries[] = $queryBuilder->getSPARQL( false );
+
+		return $this;
+	}
+
+	/**
 	 * Returns the plain SPARQL string of these conditions.
 	 * Surrounding brackets are not included.
 	 *
 	 * @return string
 	 */
 	public function getSPARQL() {
-		$sparql = '';
+		// add subqueries to the beginning because they are logically evaluated first
+		$sparql = $this->formatSubqueries();
 
 		foreach ( $this->conditions as $subject => $predicates ) {
 			$sparql .= ' ' . $subject;
@@ -204,6 +224,12 @@ class GraphBuilder {
 		return implode( array_map( function( $optional ) {
 			return ' OPTIONAL {' . $optional . ' }';
 		}, $this->optionals ) );
+	}
+
+	private function formatSubqueries() {
+		return implode( array_map( function( $subquery ) {
+			return ' { ' . $subquery . ' }';
+		}, $this->subqueries ) );
 	}
 
 	/**

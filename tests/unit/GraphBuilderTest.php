@@ -3,6 +3,7 @@
 namespace Asparagus\Tests;
 
 use Asparagus\GraphBuilder;
+use Asparagus\QueryBuilder;
 
 /**
  * @covers Asparagus\GraphBuilder
@@ -113,6 +114,15 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 		$graphBuilder->optional( $graphBuilder );
 
 		$this->assertEquals( ' ?a ?b ?c . OPTIONAL { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
+	}
+
+	public function testSubquery() {
+		$graphBuilder = new GraphBuilder();
+		$queryBuilder = new QueryBuilder();
+		$queryBuilder->where( '?a', '?b', '?c' );
+		$graphBuilder->subquery( $queryBuilder );
+
+		$this->assertEquals( ' { SELECT * WHERE { ?a ?b ?c . } }', $graphBuilder->getSPARQL() );
 	}
 
 	public function testGetSPARQL() {

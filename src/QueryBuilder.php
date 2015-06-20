@@ -34,11 +34,6 @@ class QueryBuilder {
 	private $variables = array();
 
 	/**
-	 * @var QueryBuider[]
-	 */
-	private $subqueries = array();
-
-	/**
 	 * @var GraphBuilder
 	 */
 	private $graphBuilder;
@@ -78,59 +73,6 @@ class QueryBuilder {
 		}
 
 		return $this;
-	}
-
-	/**
-	 * Adds a subquery to this query. Recursive dependencies are prohibited.
-	 *
-	 * @param self $query
-	 * @return self
-	 * @throws InvalidArgumentException
-	 */
-	public function subquery( QueryBuilder $query ) {
-		if ( $query === $this || $query->hasSubquery( $this ) ) {
-			throw new InvalidArgumentException( 'Cannot add the same query as subquery' );
-		}
-
-		$this->subqueries[] = $query;
-
-		return $this;
-	}
-
-	/**
-	 * Checks recursively if the given query is included as a subquery.
-	 *
-	 * @param self $query
-	 * @return bool
-	 */
-	public function hasSubquery( QueryBuilder $query ) {
-		foreach ( $this->subqueries as $subquery ) {
-			if ( $query === $subquery || $subquery->hasSubquery( $query) ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Creates a new subquery builder.
-	 *
-	 * @return QueryBuilder
-	 */
-	public function newSubquery() {
-		return new QueryBuilder( $this->prefixBuilder->getPrefixes() );
-	}
-
-	/**
-	 * Creates a new subgraph builder.
-	 *
-	 * @since 0.3
-	 *
-	 * @return GraphBuilder
-	 */
-	public function newSubgraph() {
-		return new GraphBuilder();
 	}
 
 	/**
@@ -219,6 +161,38 @@ class QueryBuilder {
 	}
 
 	/**
+	 * Adds the given subquery.
+	 *
+	 * @param QueryBuilder $query
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function subquery( QueryBuilder $query ) {
+		$this->graphBuilder->subquery( $query );
+		return $this;
+	}
+
+	/**
+	 * Creates a new subquery builder.
+	 *
+	 * @return QueryBuilder
+	 */
+	public function newSubquery() {
+		return new QueryBuilder( $this->prefixBuilder->getPrefixes() );
+	}
+
+	/**
+	 * Creates a new subgraph builder.
+	 *
+	 * @since 0.3
+	 *
+	 * @return GraphBuilder
+	 */
+	public function newSubgraph() {
+		return new GraphBuilder();
+	}
+
+	/**
 	 * Sets the GROUP BY modifier.
 	 *
 	 * @param string $expression
@@ -296,10 +270,8 @@ class QueryBuilder {
 		$this->validateVariables();
 
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
-		$sparql .= 'SELECT ' . $this->getVariables() . ' WHERE {';
-		$sparql .= $this->getSubqueries();
-		$sparql .= $this->graphBuilder->getSPARQL();
-		$sparql .= ' }';
+		$sparql .= 'SELECT ' . $this->getVariables() . ' WHERE';
+		$sparql .= ' {' . $this->graphBuilder->getSPARQL() . ' }';
 		$sparql .= $this->modifierBuilder->getSPARQL();
 
 		return $sparql;
@@ -327,12 +299,6 @@ class QueryBuilder {
 
 	private function getVariables() {
 		return empty( $this->variables ) ? '*' : '?' . implode( ' ?', $this->variables );
-	}
-
-	private function getSubqueries() {
-		return implode( array_map( function( QueryBuilder $query ) {
-			return ' {' . $query->getSPARQL( false ) . '}';
-		}, $this->subqueries ) );
 	}
 
 	/**
