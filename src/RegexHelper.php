@@ -62,7 +62,10 @@ class RegexHelper {
 	 * @return bool
 	 */
 	public function matchesRegex( $regex, $expression ) {
-		return preg_match( '/^' . $this->resolveMagic( $regex ) . '$/i', $expression );
+		return preg_match(
+			'/^' . $this->resolveMagic( $regex ) . '$/i',
+			$this->escapeSequences( $expression )
+		);
 	}
 
 	/**
@@ -74,11 +77,33 @@ class RegexHelper {
 	 * @return string[]
 	 */
 	public function getMatches( $regex, $expression, $group = 1 ) {
-		if ( preg_match_all( '/' . $this->resolveMagic( $regex ) . '/', $expression, $matches ) ) {
+		if ( preg_match_all( '/' . $this->resolveMagic( $regex ) . '/',
+			$this->escapeSequences( $expression ), $matches )
+		) {
 			return $matches[$group];
 		}
 
 		return array();
+	}
+
+	/**
+	 * Escapes all sequences (IRIs and strings) and sets the replacements.
+	 *
+	 * @param string $expression
+	 * @param string[] $replacements
+	 * @return string
+	 */
+	public function escapeSequences( $expression, array &$replacements = array() ) {
+		// @todo this is not completely safe but works in most cases
+		return preg_replace_callback(
+			'/("((\\.|[^\\"])*)"|\<((\\.|[^\\<])*)\>)/',
+			function( $match ) use ( &$replacements ) {
+				$key = '<' . md5( $match[0] ) . '>';
+				$replacements[$key] = $match[0];
+				return $key;
+			},
+			$expression
+		);
 	}
 
 	private function resolveMagic( $regex ) {

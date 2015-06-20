@@ -39,7 +39,8 @@ class QueryFormatter {
 		$this->indentationLevel = 0;
 		$this->replacements = array();
 
-		$sparql = $this->escape( $sparql );
+		$regexHelper = new RegexHelper();
+		$sparql = $regexHelper->escapeSequences( $sparql, $this->replacements );
 
 		foreach ( $this->split( $sparql ) as $part ) {
 			if ( !empty( $this->formattedParts ) ) {
@@ -55,16 +56,6 @@ class QueryFormatter {
 		$this->formattedParts[] = "\n";
 
 		return strtr( implode( $this->formattedParts ), $this->replacements );
-	}
-
-	private function escape( $string ) {
-		$replacements = &$this->replacements;
-		// @todo this is not completely safe but works in most cases
-		return preg_replace_callback( '/("((\\.|[^\\"])*)"|\<((\\.|[^\\<])*)\>)/', function( $match ) use ( &$replacements ) {
-			$key = '<' . md5( $match[0] ) . '>';
-			$replacements[$key] = $match[0];
-			return $key;
-		}, $string );
 	}
 
 	private function split( $string ) {
