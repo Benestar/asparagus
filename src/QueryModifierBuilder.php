@@ -22,8 +22,14 @@ class QueryModifierBuilder {
 	 */
 	private $expressionValidator;
 
-	public function __construct() {
+	/**
+	 * @var UsageValidator
+	 */
+	private $usageValidator;
+
+	public function __construct( UsageValidator $usageValidator ) {
 		$this->expressionValidator = new ExpressionValidator();
+		$this->usageValidator = $usageValidator;
 	}
 
 	/**
@@ -34,6 +40,12 @@ class QueryModifierBuilder {
 	public function groupBy( $expression )  {
 		$this->expressionValidator->validate( $expression,
 			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
+		);
+		$this->usageValidator->trackUsedPrefixes(
+			$this->expressionValidator->getPrefixes( $expression )
+		);
+		$this->usageValidator->trackUsedVariables(
+			$this->expressionValidator->getVariables( $expression )
 		);
 
 		$this->modifiers['GROUP BY'] = $expression;
@@ -46,6 +58,13 @@ class QueryModifierBuilder {
 	 */
 	public function having( $expression ) {
 		$this->expressionValidator->validate( $expression, ExpressionValidator::VALIDATE_FUNCTION );
+		$this->usageValidator->trackUsedPrefixes(
+			$this->expressionValidator->getPrefixes( $expression )
+		);
+		$this->usageValidator->trackUsedVariables(
+			$this->expressionValidator->getVariables( $expression )
+		);
+
 		$this->modifiers['HAVING'] = '(' . $expression . ')';
 	}
 
@@ -57,15 +76,20 @@ class QueryModifierBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function orderBy( $expression, $direction = 'ASC' ) {
-		$this->expressionValidator->validate( $expression,
-			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION
-		);
-
 		$direction = strtoupper( $direction );
-
 		if ( !in_array( $direction, array( 'ASC', 'DESC' ) ) ) {
 			throw new InvalidArgumentException( '$direction has to be either ASC or DESC' );
 		}
+
+		$this->expressionValidator->validate( $expression,
+			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION
+		);
+		$this->usageValidator->trackUsedPrefixes(
+			$this->expressionValidator->getPrefixes( $expression )
+		);
+		$this->usageValidator->trackUsedVariables(
+			$this->expressionValidator->getVariables( $expression )
+		);
 
 		$this->modifiers['ORDER BY'] = $direction . ' (' . $expression . ')';
 	}
@@ -110,20 +134,6 @@ class QueryModifierBuilder {
 				return ' ' . $key . ' ' . $modifiers[$key];
 			}
 		}, array( 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT', 'OFFSET' ) ) );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getPrefixes() {
-		return $this->expressionValidator->getPrefixes();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getVariables() {
-		return $this->expressionValidator->getVariables();
 	}
 
 }

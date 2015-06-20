@@ -3,6 +3,7 @@
 namespace Asparagus\Tests;
 
 use Asparagus\QueryPrefixBuilder;
+use Asparagus\UsageValidator;
 
 /**
  * @covers Asparagus\QueryPrefixBuilder
@@ -18,7 +19,7 @@ class QueryPrefixBuilderTest extends \PHPUnit_Framework_TestCase {
 	);
 
 	public function testConstructor() {
-		$prefixBuilder = new QueryPrefixBuilder( self::$prefixes );
+		$prefixBuilder = new QueryPrefixBuilder( self::$prefixes, new UsageValidator() );
 
 		$this->assertEquals( self::$prefixes, $prefixBuilder->getPrefixes() );
 	}
@@ -26,17 +27,17 @@ class QueryPrefixBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testConstructor_invalidIRI() {
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		new QueryPrefixBuilder( array( 'bar' => null ) );
+		new QueryPrefixBuilder( array( 'bar' => null ), new UsageValidator() );
 	}
 
 	public function testConstructor_invalidPrefix() {
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		new QueryPrefixBuilder( array( 4 => 'http://foo.bar.com/nyan#' ) );
+		new QueryPrefixBuilder( array( 4 => 'http://foo.bar.com/nyan#' ), new UsageValidator() );
 	}
 
 	public function testGetSPARQL() {
-		$prefixBuilder = new QueryPrefixBuilder( self::$prefixes );
+		$prefixBuilder = new QueryPrefixBuilder( self::$prefixes, new UsageValidator() );
 
 		$this->assertEquals(
 			'PREFIX test: <http://www.example.com/test#> PREFIX foo: <http://www.foo.org/bar#> ',

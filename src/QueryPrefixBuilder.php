@@ -23,10 +23,16 @@ class QueryPrefixBuilder {
 	private $expressionValidator;
 
 	/**
+	 * @var UsageValidator
+	 */
+	private $usageValidator;
+
+	/**
 	 * @param string[] $prefixes
 	 */
-	public function __construct( array $prefixes = array() ) {
+	public function __construct( array $prefixes, UsageValidator $usageValidator ) {
 		$this->expressionValidator = new ExpressionValidator();
+		$this->usageValidator = $usageValidator;
 		$this->setPrefixes( $prefixes );
 	}
 
@@ -43,6 +49,8 @@ class QueryPrefixBuilder {
 
 			$this->prefixes[$prefix] = $iri;
 		}
+
+		$this->usageValidator->trackDefinedPrefixes( array_keys( $this->prefixes ) );
 	}
 
 	/**

@@ -52,17 +52,17 @@ class GraphBuilder {
 	private $expressionValidator;
 
 	/**
-	 * @param string|null $subject
-	 * @param string|null $predicate
-	 * @param string|null $object
+	 * @var UsageValidator
+	 */
+	private $usageValidator;
+
+	/**
+	 * @param UsageValidator $usageValidator
 	 * @throws InvalidArgumentException
 	 */
-	public function __construct( $subject = null, $predicate = null, $object = null ) {
+	public function __construct( UsageValidator $usageValidator ) {
 		$this->expressionValidator = new ExpressionValidator();
-
-		if ( $subject !== null && $predicate !== null && $object !== null ) {
-			$this->where( $subject, $predicate, $object );
-		}
+		$this->usageValidator = $usageValidator;
 	}
 
 	/**
@@ -83,6 +83,13 @@ class GraphBuilder {
 		);
 		$this->expressionValidator->validate( $object,
 			ExpressionValidator::VALIDATE_PREFIXED_IRI | ExpressionValidator::VALIDATE_VARIABLE
+		);
+
+		$this->usageValidator->trackUsedPrefixes(
+			$this->expressionValidator->getPrefixes( $subject . ' ' . $predicate . ' ' . $object )
+		);
+		$this->usageValidator->trackDefinedVariables(
+			$this->expressionValidator->getVariables( $subject  . ' ' . $predicate . ' ' . $object )
 		);
 
 		$this->currentSubject = $subject;
@@ -123,7 +130,15 @@ class GraphBuilder {
 	 */
 	public function filter( $expression ) {
 		$this->expressionValidator->validate( $expression, ExpressionValidator::VALIDATE_FUNCTION );
-		$this->filters[] = $expression;
+
+		$this->usageValidator->trackUsedPrefixes(
+			$this->expressionValidator->getPrefixes( $expression )
+		);
+		$this->usageValidator->trackUsedVariables(
+			$this->expressionValidator->getVariables( $expression )
+		);
+
+		$this->filters[] = '(' . $expression . ')';
 
 		return $this;
 	}
@@ -165,7 +180,8 @@ class GraphBuilder {
 	 */
 	public function optional( $subject, $predicate = null, $object = null ) {
 		if ( !( $subject instanceof GraphBuilder ) ) {
-			$subject = new GraphBuilder( $subject, $predicate, $object );
+			$subject = ( new GraphBuilder( $this->usageValidator ) )
+				->where( $subject, $predicate, $object );
 		}
 
 		$this->optionals[] = $subject->getSPARQL();
@@ -183,6 +199,7 @@ class GraphBuilder {
 	public function subquery( QueryBuilder $queryBuilder ) {
 		// @todo track variables
 		$this->subqueries[] = $queryBuilder->getSPARQL( false );
+		$this->usageValidator->trackDefinedVariables( $queryBuilder->getVariables() );
 
 		return $this;
 	}
@@ -230,20 +247,6 @@ class GraphBuilder {
 		return implode( array_map( function( $subquery ) {
 			return ' { ' . $subquery . ' }';
 		}, $this->subqueries ) );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getPrefixes() {
-		return $this->expressionValidator->getPrefixes();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getVariables() {
-		return $this->expressionValidator->getVariables();
 	}
 
 }

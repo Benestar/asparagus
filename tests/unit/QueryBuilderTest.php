@@ -82,7 +82,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->filterExists( new GraphBuilder() )
+			$queryBuilder->filterExists( $queryBuilder->newSubgraph() )
 		);
 	}
 
@@ -90,7 +90,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->filterNotExists( new GraphBuilder() )
+			$queryBuilder->filterNotExists( $queryBuilder->newSubgraph() )
 		);
 	}
 
@@ -106,7 +106,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
-			$queryBuilder->subquery( $queryBuilder )
+			$queryBuilder->subquery( $queryBuilder->newSubquery() )
 		);
 	}
 
@@ -120,10 +120,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testNewSubgraph() {
 		$queryBuilder = new QueryBuilder();
-		$this->assertEquals(
-			new GraphBuilder(),
-			$queryBuilder->newSubgraph()
-		);
+		$this->assertInstanceOf( 'Asparagus\GraphBuilder', $queryBuilder->newSubgraph() );
 	}
 
 	public function testGroupBy() {

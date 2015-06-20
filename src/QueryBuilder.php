@@ -24,6 +24,11 @@ class QueryBuilder {
 	private $expressionValidator;
 
 	/**
+	 * @var UsageValidator
+	 */
+	private $usageValidator;
+
+	/**
 	 * @var QueryPrefixBuilder
 	 */
 	private $prefixBuilder;
@@ -49,9 +54,19 @@ class QueryBuilder {
 	 */
 	public function __construct( array $prefixes = array() ) {
 		$this->expressionValidator = new ExpressionValidator();
-		$this->prefixBuilder = new QueryPrefixBuilder( $prefixes );
-		$this->graphBuilder = new GraphBuilder();
-		$this->modifierBuilder = new QueryModifierBuilder();
+		$this->usageValidator = new UsageValidator();
+		$this->prefixBuilder = new QueryPrefixBuilder( $prefixes, $this->usageValidator );
+		$this->graphBuilder = new GraphBuilder( $this->usageValidator );
+		$this->modifierBuilder = new QueryModifierBuilder( $this->usageValidator );
+	}
+
+	/**
+	 * @since 0.3
+	 *
+	 * @return string[] list of variables without prefixes
+	 */
+	public function getVariables() {
+		return $this->variables;
 	}
 
 	/**
@@ -189,7 +204,7 @@ class QueryBuilder {
 	 * @return GraphBuilder
 	 */
 	public function newSubgraph() {
-		return new GraphBuilder();
+		return new GraphBuilder( $this->usageValidator );
 	}
 
 	/**
@@ -266,38 +281,18 @@ class QueryBuilder {
 			throw new InvalidArgumentException( '$includePrefixes has to be a bool' );
 		}
 
-		$this->validatePrefixes();
-		$this->validateVariables();
+		$this->usageValidator->trackUsedVariables( $this->variables );
+		$this->usageValidator->validate();
 
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
-		$sparql .= 'SELECT ' . $this->getVariables() . ' WHERE';
+		$sparql .= 'SELECT ' . $this->formatVariables() . ' WHERE';
 		$sparql .= ' {' . $this->graphBuilder->getSPARQL() . ' }';
 		$sparql .= $this->modifierBuilder->getSPARQL();
 
 		return $sparql;
 	}
 
-	private function validatePrefixes() {
-		$definedPrefixes = array_keys( $this->prefixBuilder->getPrefixes() );
-		$usedPrefixes = array_merge( $this->graphBuilder->getPrefixes(), $this->modifierBuilder->getPrefixes() );
-
-		$diff = array_diff( $usedPrefixes, $definedPrefixes );
-		if ( !empty( $diff ) ) {
-			throw new RangeException( 'The prefixes ' . implode( ', ', $diff ) . ' aren\'t defined for this query.' );
-		}
-	}
-
-	private function validateVariables() {
-		$definedVariables = $this->graphBuilder->getVariables();
-		$usedVariables = array_merge( $this->variables, $this->modifierBuilder->getVariables() );
-
-		$diff = array_diff( $usedVariables, $definedVariables );
-		if ( !empty( $diff ) ) {
-			throw new RangeException( 'The variables ?' . implode( ', ?', $diff ) . ' don\'t occur in this query.' );
-		}
-	}
-
-	private function getVariables() {
+	private function formatVariables() {
 		return empty( $this->variables ) ? '*' : '?' . implode( ' ?', $this->variables );
 	}
 

@@ -15,36 +15,35 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideValidExpressions
 	 */
-	public function testValidate_validExpressions( $expression, $options, array $variables, array $prefixes ) {
+	public function testValidate_validExpressions( $expression, $options ) {
 		$expressionValidator = new ExpressionValidator();
 		$expressionValidator->validate( $expression, $options );
 
-		$this->assertEquals( $variables, $expressionValidator->getVariables() );
-		$this->assertEquals( $prefixes, $expressionValidator->getPrefixes() );
+		$this->assertTrue( true );
 	}
 
 	public function provideValidExpressions() {
 		return array(
-			array( '?a', ExpressionValidator::VALIDATE_VARIABLE, array( 'a' ), array() ),
-			array( '$b', ExpressionValidator::VALIDATE_VARIABLE, array( 'b' ), array() ),
-			array( 'http://www.example.com/test#', ExpressionValidator::VALIDATE_IRI, array(), array() ),
-			array( 'abc', ExpressionValidator::VALIDATE_PREFIX, array(), array() ),
-			array( 'test:FooBar', ExpressionValidator::VALIDATE_PREFIXED_IRI, array(), array( 'test' ) ),
-			array( 'foaf:knows/foaf:name', ExpressionValidator::VALIDATE_PATH, array(), array( 'foaf' ) ),
-			array( 'foaf:knows/foaf:knows/foaf:name', ExpressionValidator::VALIDATE_PATH, array(), array( 'foaf' ) ),
-			array( 'foaf:knows/^foaf:knows', ExpressionValidator::VALIDATE_PATH, array(), array( 'foaf' ) ),
-			array( 'foaf:knows+/foaf:name', ExpressionValidator::VALIDATE_PATH, array(), array( 'foaf' ) ),
-			array( '(ex:motherOf|ex:fatherOf)+', ExpressionValidator::VALIDATE_PATH, array(), array( 'ex' ) ),
-			array( 'rdf:type/rdfs:subClassOf*', ExpressionValidator::VALIDATE_PATH, array(), array( 'rdf', 'rdfs' ) ),
-			array( '^rdf:type', ExpressionValidator::VALIDATE_PATH, array(), array( 'rdf' ) ),
-			array( '!(rdf:type|^rdf:type)', ExpressionValidator::VALIDATE_PATH, array(), array( 'rdf' ) ),
-			array( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION, array( 'x' ), array( 'xsd' ) ),
-			array( '?abc', ExpressionValidator::VALIDATE_FUNCTION, array( 'abc' ), array() ),
-			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION, array( 'x', 'y', 'z' ), array() ),
-			array( '?x * ?x < ?y', ExpressionValidator::VALIDATE_FUNCTION, array( 'x', 'y' ), array() ),
-			array( 'CONTAINS (?x, ")))"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION, array( 'x' ), array( 'xsd' ) ),
-			array( '<http://www.example.com/test#nyan> ?p ?q', ExpressionValidator::VALIDATE_FUNCTION, array( 'p', 'q' ), array() ),
-			array( 'COUNT (?x) AS ?count', ExpressionValidator::VALIDATE_FUNCTION_AS, array( 'x' ), array() ),
+			array( '?a', ExpressionValidator::VALIDATE_VARIABLE ),
+			array( '$b', ExpressionValidator::VALIDATE_VARIABLE ),
+			array( 'http://www.example.com/test#', ExpressionValidator::VALIDATE_IRI ),
+			array( 'abc', ExpressionValidator::VALIDATE_PREFIX ),
+			array( 'test:FooBar', ExpressionValidator::VALIDATE_PREFIXED_IRI ),
+			array( 'foaf:knows/foaf:name', ExpressionValidator::VALIDATE_PATH ),
+			array( 'foaf:knows/foaf:knows/foaf:name', ExpressionValidator::VALIDATE_PATH ),
+			array( 'foaf:knows/^foaf:knows', ExpressionValidator::VALIDATE_PATH ),
+			array( 'foaf:knows+/foaf:name', ExpressionValidator::VALIDATE_PATH ),
+			array( '(ex:motherOf|ex:fatherOf)+', ExpressionValidator::VALIDATE_PATH ),
+			array( 'rdf:type/rdfs:subClassOf*', ExpressionValidator::VALIDATE_PATH ),
+			array( '^rdf:type', ExpressionValidator::VALIDATE_PATH ),
+			array( '!(rdf:type|^rdf:type)', ExpressionValidator::VALIDATE_PATH ),
+			array( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION ),
+			array( '?abc', ExpressionValidator::VALIDATE_FUNCTION ),
+			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION ),
+			array( '?x * ?x < ?y', ExpressionValidator::VALIDATE_FUNCTION ),
+			array( 'CONTAINS (?x, ")))"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION ),
+			array( '<http://www.example.com/test#nyan> ?p ?q', ExpressionValidator::VALIDATE_FUNCTION ),
+			array( 'COUNT (?x) AS ?count', ExpressionValidator::VALIDATE_FUNCTION_AS ),
 		);
 	}
 
@@ -88,6 +87,54 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 		$this->setExpectedException( 'InvalidArgumentException' );
 
 		$expressionValidator->validate( null, ExpressionValidator::VALIDATE_ALL );
+	}
+
+	/**
+	 * @dataProvider providePrefixes
+	 */
+	public function testGetPrefixes( $expression, array $prefixes ) {
+		$expressionValidator = new ExpressionValidator();
+
+		$this->assertEquals( $prefixes, $expressionValidator->getPrefixes( $expression ) );
+	}
+
+	public function providePrefixes() {
+		return array(
+			array( '?a', array() ),
+			array( 'http://www.example.com/test#', array() ),
+			array( 'test:FooBar', array( 'test' ) ),
+			array( 'foaf:knows/foaf:name', array( 'foaf', 'foaf' ) ),
+			array( '(ex:motherOf|ex:fatherOf)+', array( 'ex', 'ex' ) ),
+			array( 'rdf:type/rdfs:subClassOf*', array( 'rdf', 'rdfs' ) ),
+			array( '^rdf:type', array( 'rdf' ) ),
+			array( '!(rdf:type|^rdf:type)', array( 'rdf', 'rdf' ) ),
+			array( 'CONTAINS (?x, "test"^^xsd:string)', array( 'xsd' ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider provideVariables
+	 */
+	public function testGetVariables( $expression, array $variables ) {
+		$expressionValidator = new ExpressionValidator();
+
+		$this->assertEquals( $variables, $expressionValidator->getVariables( $expression ) );
+	}
+
+	public function provideVariables() {
+		return array(
+			array( '?a', array( 'a' ) ),
+			array( '$b', array( 'b' ) ),
+			array( 'http://www.example.com/test?#', array() ),
+			array( '$ foobar', array() ),
+			array( 'CONTAINS (?x, "test"^^xsd:string)', array( 'x' ) ),
+			array( '?abc', array( 'abc' ) ),
+			array( '?x + ?y > ?z', array( 'x', 'y', 'z' ) ),
+			array( '?x * ?x < ?y', array( 'x', 'x', 'y' ) ),
+			array( 'CONTAINS (?x, ")))"^^xsd:string)', array( 'x' ) ),
+			array( '<http://www.example.com/test#nyan> ?p ?q', array( 'p', 'q' ) ),
+			array( 'COUNT (?x) AS ?count', array( 'x' ) ),
+		);
 	}
 
 }

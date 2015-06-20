@@ -88,16 +88,6 @@ class ExpressionValidator {
 	private static $name = '\w+';
 
 	/**
-	 * @var string[]
-	 */
-	private $variables = array();
-
-	/**
-	 * @var string[]
-	 */
-	private $prefixes = array();
-
-	/**
 	 * Validates the given expression and tracks it.
 	 * VALIDATE_PREFIX won't track prefixes.
 	 *
@@ -115,9 +105,6 @@ class ExpressionValidator {
 				implode( ' or a ', $this->getOptionNames( $options ) )
 			);
 		}
-
-		$this->trackVariables( $expression );
-		$this->trackPrefixes( $expression );
 	}
 
 	private function getOptionNames( $options ) {
@@ -136,23 +123,6 @@ class ExpressionValidator {
 		} );
 
 		return array_keys( $names );
-	}
-
-	private function trackVariables( $expression ) {
-		// negative look-behind
-		if ( preg_match_all( '/(^|\W)(?<!AS )' . self::$variable . '/', $expression, $matches ) ) {
-			foreach ( $matches[2] as $match ) {
-				$this->variables[$match] = true;
-			}
-		}
-	}
-
-	private function trackPrefixes( $expression ) {
-		if ( preg_match_all( '/(^|\W)(' . self::$prefix . '):' . self::$name . '/', $expression, $matches ) ) {
-			foreach ( $matches[2] as $match ) {
-				$this->prefixes[$match] = true;
-			}
-		}
 	}
 
 	private function matches( $expression, $options ) {
@@ -223,21 +193,32 @@ class ExpressionValidator {
 	}
 
 	/**
-	 * Returns the list of varialbes which have been used.
+	 * Returns the variables that occur in the given expression.
 	 *
+	 * @param string $expression
 	 * @return string[]
 	 */
-	public function getVariables() {
-		return array_keys( $this->variables );
+	public function getVariables( $expression ) {
+		// negative look-behind
+		if ( preg_match_all( '/(^|\W)(?<!AS )' . self::$variable . '/', $expression, $matches ) ) {
+			return $matches[2];
+		}
+
+		return array();
 	}
 
 	/**
-	 * Returns the list of prefixes which have been used.
+	 * Returns the prefixes that occur in the given expression.
 	 *
+	 * @param string $expression
 	 * @return string[]
 	 */
-	public function getPrefixes() {
-		return array_keys( $this->prefixes );
+	public function getPrefixes( $expression ) {
+		if ( preg_match_all( '/(^|\W)(' . self::$prefix . '):' . self::$name . '/', $expression, $matches ) ) {
+			return $matches[2];
+		}
+
+		return array();
 	}
 
 }

@@ -87,6 +87,9 @@ SELECT ?name ?email WHERE {
 LIMIT 10
 ```
 
+More complex queries can be built by using subgraphs or subqueries. To create a new subgrapho or
+subquery, you can call `QueryBuilder::newSubgraph` or `QueryBuilder::newSubquery`.
+
 ## Tests
 
 This library comes with a set up PHPUnit tests that cover all non-trivial code. You can run these
@@ -97,11 +100,13 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ### 0.3 (dev)
 
-* Added `QueryBuilder::filter`, `QueryBuilder::filterExists` and `QueryBuilder::filterNotExists`
+* Changes in `QueryBuilder`
+  * Added `QueryBuilder::newSubgraph`
+  * Added `QueryBuilder::getVariables`
+  * Added `QueryBuilder::filter`, `QueryBuilder::filterExists` and `QueryBuilder::filterNotExists`
+  * Added `QueryBuilder::optional`
+  * Removed `QueryBuilder::hasSubquery`
 * Renamed previously package-private `QueryConditionBuilder` to `GraphBuilder`
-* Added `QueryBuilder::newSubgraph` as an alias for `new GraphBuilder()`
-* Added `QueryBuilder::optional` for optional conditions
-* Removed `QueryBuilder::hasSubquery`
 
 ### 0.2.1 (2015-06-19)
 
