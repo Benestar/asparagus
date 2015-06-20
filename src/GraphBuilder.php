@@ -171,12 +171,14 @@ class GraphBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function optional( $subject, $predicate = null, $object = null ) {
-		if ( !( $subject instanceof GraphBuilder ) ) {
-			$subject = ( new GraphBuilder( $this->usageValidator ) )
-				->where( $subject, $predicate, $object );
+		$graphBuilder = $subject;
+
+		if ( !( $graphBuilder instanceof GraphBuilder ) ) {
+			$graphBuilder = new GraphBuilder( $this->usageValidator );
+			$graphBuilder->where( $subject, $predicate, $object );
 		}
 
-		$this->optionals[] = $subject->getSPARQL();
+		$this->optionals[] = $graphBuilder->getSPARQL();
 
 		return $this;
 	}
