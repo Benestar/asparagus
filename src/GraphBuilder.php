@@ -57,6 +57,8 @@ class GraphBuilder {
 	private $usageValidator;
 
 	/**
+	 * Package-private constructor, use QueryBuilder::newSubgraph instead
+	 *
 	 * @param UsageValidator $usageValidator
 	 * @throws InvalidArgumentException
 	 */
@@ -142,7 +144,6 @@ class GraphBuilder {
 	 * @return self
 	 */
 	public function filterExists( GraphBuilder $graphBuilder ) {
-		// @todo track variables and prefixes
 		$this->filters[] = 'EXISTS {' . $graphBuilder->getSPARQL() . ' }';
 
 		return $this;
@@ -155,7 +156,6 @@ class GraphBuilder {
 	 * @return self
 	 */
 	public function filterNotExists( GraphBuilder $graphBuilder ) {
-		// @todo track variables and prefixes
 		$this->filters[] = 'NOT EXISTS {' . $graphBuilder->getSPARQL() . ' }';
 
 		return $this;
@@ -191,9 +191,8 @@ class GraphBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function subquery( QueryBuilder $queryBuilder ) {
-		// @todo track variables
 		$this->subqueries[] = $queryBuilder->getSPARQL( false );
-		$this->usageValidator->trackDefinedVariables( $queryBuilder->getVariables() );
+		$this->usageValidator->trackDefinedVariables( implode( ' ', $queryBuilder->getSelects() ) );
 
 		return $this;
 	}

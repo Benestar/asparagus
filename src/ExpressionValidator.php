@@ -148,7 +148,7 @@ class ExpressionValidator {
 
 	private function isFunctionAs( $expression, $options ) {
 		return $options & self::VALIDATE_FUNCTION_AS &&
-			$this->regexHelper->matchesRegex( '\{function} AS \{variable}', $expression );
+			$this->regexHelper->matchesRegex( '\(\{function} AS \{variable}\)', $expression );
 	}
 
 }

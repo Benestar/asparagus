@@ -34,9 +34,9 @@ class QueryBuilder {
 	private $prefixBuilder;
 
 	/**
-	 * @var string[] list of variables to select
+	 * @var string[] list of expressions to select
 	 */
-	private $variables = array();
+	private $selects = array();
 
 	/**
 	 * @var string uniqueness constraint, one of DISTINCT, REDUCED or empty
@@ -68,28 +68,29 @@ class QueryBuilder {
 	/**
 	 * @since 0.3
 	 *
-	 * @return string[] list of variables without prefixes
+	 * @return string[] list of expressions to select
 	 */
-	public function getVariables() {
-		return $this->variables;
+	public function getSelects() {
+		return $this->selects;
 	}
 
 	/**
-	 * Specifies the variables to select.
+	 * Specifies the expressions to select.
 	 *
-	 * @param string|string[] $variables
+	 * @param string|string[] $expressions
 	 * @return self
 	 * @throws InvalidArgumentException
 	 */
-	public function select( $variables /* variables ... */ ) {
-		$variables = is_array( $variables ) ? $variables : func_get_args();
+	public function select( $expressions /* expressions ... */ ) {
+		$expressions = is_array( $expressions ) ? $expressions : func_get_args();
 
-		foreach ( $variables as $variable ) {
-			$this->expressionValidator->validate( $variable,
+		foreach ( $expressions as $expression ) {
+			$this->expressionValidator->validate( $expression,
 				ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
 			);
 
-			$this->variables[] = substr( $variable, 1 );
+			$this->usageValidator->trackUsedVariables( $expression );
+			$this->selects[] = $expression;
 		}
 
 		return $this;
@@ -312,19 +313,18 @@ class QueryBuilder {
 			throw new InvalidArgumentException( '$includePrefixes has to be a bool' );
 		}
 
-		$this->usageValidator->trackUsedVariables( $this->variables );
 		$this->usageValidator->validate();
 
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
-		$sparql .= 'SELECT ' . $this->uniqueness . $this->formatVariables() . ' WHERE';
+		$sparql .= 'SELECT ' . $this->uniqueness . $this->formatSelects() . ' WHERE';
 		$sparql .= ' {' . $this->graphBuilder->getSPARQL() . ' }';
 		$sparql .= $this->modifierBuilder->getSPARQL();
 
 		return $sparql;
 	}
 
-	private function formatVariables() {
-		return empty( $this->variables ) ? '*' : '?' . implode( ' ?', $this->variables );
+	private function formatSelects() {
+		return empty( $this->selects ) ? '*' : implode( ' ', $this->selects );
 	}
 
 	/**

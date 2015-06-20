@@ -43,7 +43,7 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 			array( '?x * ?x < ?y', ExpressionValidator::VALIDATE_FUNCTION ),
 			array( 'CONTAINS (?x, ")))"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION ),
 			array( '<http://www.example.com/test#nyan> ?p ?q', ExpressionValidator::VALIDATE_FUNCTION ),
-			array( 'COUNT (?x) AS ?count', ExpressionValidator::VALIDATE_FUNCTION_AS ),
+			array( '(COUNT (?x) AS ?count)', ExpressionValidator::VALIDATE_FUNCTION_AS ),
 		);
 	}
 
@@ -77,6 +77,7 @@ class ExpressionValidatorTest extends \PHPUnit_Framework_TestCase {
 			array( 'CONTAINS (?x, "test"^^xsd:string)', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),
 			array( '?x + ?y > ?z', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),
 			array( ' AS ?abc', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),
+			array( 'COUNT (?x) AS ?count', ExpressionValidator::VALIDATE_FUNCTION_AS, 'function with variable assignment' ),
 			array( '', ExpressionValidator::VALIDATE_ALL, 'or a' ),
 			array( '     ', ExpressionValidator::VALIDATE_ALL, 'or a' ),
 		);
