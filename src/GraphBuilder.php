@@ -173,7 +173,7 @@ class GraphBuilder {
 	public function optional( $subject, $predicate = null, $object = null ) {
 		$graphBuilder = $subject;
 
-		if ( !( $graphBuilder instanceof GraphBuilder ) ) {
+		if ( !( $subject instanceof GraphBuilder ) ) {
 			$graphBuilder = new GraphBuilder( $this->usageValidator );
 			$graphBuilder->where( $subject, $predicate, $object );
 		}
