@@ -85,12 +85,8 @@ class GraphBuilder {
 			ExpressionValidator::VALIDATE_PREFIXED_IRI | ExpressionValidator::VALIDATE_VARIABLE
 		);
 
-		$this->usageValidator->trackUsedPrefixes(
-			$this->expressionValidator->getPrefixes( $subject . ' ' . $predicate . ' ' . $object )
-		);
-		$this->usageValidator->trackDefinedVariables(
-			$this->expressionValidator->getVariables( $subject  . ' ' . $predicate . ' ' . $object )
-		);
+		$this->usageValidator->trackUsedPrefixes(  $subject . ' ' . $predicate . ' ' . $object );
+		$this->usageValidator->trackDefinedVariables( $subject  . ' ' . $predicate . ' ' . $object );
 
 		$this->currentSubject = $subject;
 		$this->currentPredicate = $predicate;
@@ -131,12 +127,8 @@ class GraphBuilder {
 	public function filter( $expression ) {
 		$this->expressionValidator->validate( $expression, ExpressionValidator::VALIDATE_FUNCTION );
 
-		$this->usageValidator->trackUsedPrefixes(
-			$this->expressionValidator->getPrefixes( $expression )
-		);
-		$this->usageValidator->trackUsedVariables(
-			$this->expressionValidator->getVariables( $expression )
-		);
+		$this->usageValidator->trackUsedPrefixes( $expression );
+		$this->usageValidator->trackUsedVariables( $expression );
 
 		$this->filters[] = '(' . $expression . ')';
 

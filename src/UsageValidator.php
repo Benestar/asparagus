@@ -33,39 +33,72 @@ class UsageValidator {
 	private $definedPrefixes = array();
 
 	/**
+	 * @var RegexHelper
+	 */
+	private $regexHelper;
+
+	public function __construct() {
+		$this->regexHelper = new RegexHelper();
+	}
+
+	/**
 	 * Trackes the list of variables as used.
 	 *
-	 * @param string[] $variables list of variables without prefixes
+	 * @param string[]|string $variables list of variables without prefixes
 	 */
-	public function trackUsedVariables( array $variables ) {
+	public function trackUsedVariables( $variables ) {
+		if ( !is_array( $variables ) ) {
+			$variables = $this->matchVariables( $variables );
+		}
+
 		$this->usedVariables = array_merge( $this->usedVariables, $variables );
 	}
 
 	/**
 	 * Trackes the list of variables as defined.
 	 *
-	 * @param string[] $variables list of variables without prefixes
+	 * @param string[]|string $variables list of variables without prefixes
 	 */
-	public function trackDefinedVariables( array $variables )  {
+	public function trackDefinedVariables( $variables )  {
+		if ( !is_array( $variables ) ) {
+			$variables = $this->matchVariables( $variables );
+		}
+
 		$this->definedVariables = array_merge( $this->definedVariables, $variables );
 	}
 
 	/**
 	 * Trackes the list of prefixes as used.
 	 *
-	 * @param string[] $prefixes list of prefixes
+	 * @param string[]|string $prefixes list of prefixes
 	 */
-	public function trackUsedPrefixes( array $prefixes )  {
+	public function trackUsedPrefixes( $prefixes )  {
+		if ( !is_array( $prefixes ) ) {
+			$prefixes = $this->matchPrefixes( $prefixes );
+		}
+
 		$this->usedPrefixes = array_merge( $this->usedPrefixes, $prefixes );
 	}
 
 	/**
 	 * Trackes the list of prefixes as defined.
 	 *
-	 * @param string[] $prefixes list of prefixes
+	 * @param string[]|string $prefixes list of prefixes
 	 */
-	public function trackDefinedPrefixes( array $prefixes )  {
+	public function trackDefinedPrefixes( $prefixes )  {
+		if ( !is_array( $prefixes ) ) {
+			$prefixes = $this->matchPrefixes( $prefixes );
+		}
+
 		$this->definedPrefixes = array_merge( $this->definedPrefixes, $prefixes );
+	}
+
+	private function matchVariables( $expression ) {
+		return $this->regexHelper->getMatches( '(^|\W)(?<!AS )\{variable}', $expression, 2 );
+	}
+
+	private function matchPrefixes( $expression ) {
+		return $this->regexHelper->getMatches( '(^|\W)(\{prefix}):\{name}', $expression, 2 );
 	}
 
 	/**

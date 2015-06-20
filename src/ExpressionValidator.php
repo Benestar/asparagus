@@ -53,39 +53,13 @@ class ExpressionValidator {
 	const VALIDATE_FUNCTION_AS = 64;
 
 	/**
-	 * @var string[] list of natively supported functions
+	 * @var RegexHelper
 	 */
-	private static $functions = array(
-		'COUNT', 'SUM', 'MIN', 'MAX', 'AVG', 'SAMPLE', 'GROUP_CONCAT', 'STR',
-		'LANG', 'LANGMATCHES', 'DATATYPE', 'BOUND', 'IRI', 'URI', 'BNODE',
-		'RAND', 'ABS', 'CEIL', 'FLOOR', 'ROUND', 'CONCAT', 'STRLEN', 'UCASE',
-		'LCASE', 'ENCODE_FOR_URI', 'CONTAINS', 'STRSTARTS', 'STRENDS',
-		'STRBEFORE', 'STRAFTER', 'YEAR', 'MONTH', 'DAY', 'HOURS', 'MINUTES',
-		'SECONDS', 'TIMEZONE', 'TZ', 'NOW', 'UUID', 'STRUUID', 'MD5', 'SHA1',
-		'SHA256', 'SHA384', 'SHA512', 'COALESCE', 'IF', 'STRLANG', 'STRDT',
-		'sameTerm', 'isIRI', 'isURI', 'isBLANK', 'isLITERAL', 'isNUMERIC',
-		'REGEX', 'SUBSTR', 'REPLACE', 'EXISTS', 'NOT EXISTS'
-	);
+	private $regexHelper;
 
-	/**
-	 * @var string regex to match variables
-	 */
-	private static $variable = '[?$](\w+)';
-
-	/**
-	 * @var string regex to match IRIs
-	 */
-	private static $iri = '[^\s<>"{}|\\\\^`]+';
-
-	/**
-	 * @var string regex to match prefixes
-	 */
-	private static $prefix = '\w+';
-
-	/**
-	 * @var string regex to match names after prefixes
-	 */
-	private static $name = '\w+';
+	public function __construct() {
+		$this->regexHelper = new RegexHelper();
+	}
 
 	/**
 	 * Validates the given expression and tracks it.
@@ -137,39 +111,33 @@ class ExpressionValidator {
 
 	private function isVariable( $expression, $options ) {
 		return $options & self::VALIDATE_VARIABLE &&
-			$this->matchesRegex( self::$variable, $expression );
+			$this->regexHelper->matchesRegex( '\{variable}', $expression );
 	}
 
 	private function isIRI( $expression, $options ) {
 		return $options & self::VALIDATE_IRI &&
-			$this->matchesRegex( self::$iri, $expression );
+			$this->regexHelper->matchesRegex( '\{iri}', $expression );
 	}
 
 	private function isPrefix( $expression, $options ) {
 		return $options & self::VALIDATE_PREFIX &&
-			$this->matchesRegex( self::$prefix, $expression );
+			$this->regexHelper->matchesRegex( '\{prefix}', $expression );
 	}
 
 	private function isPrefixedIRI( $expression, $options ) {
 		return $options & self::VALIDATE_PREFIXED_IRI &&
-			$this->matchesRegex( $this->getPrefixedIRIRegex(), $expression );
+			$this->regexHelper->matchesRegex( '\{prefixed_iri}', $expression );
 	}
 
 	private function isPath( $expression, $options ) {
-		// (?1) means the first subpattern (ie. the enclosing "()" brackets)
-		$prefixedIRI = '[\^!]*(a|' . $this->getPrefixedIRIRegex() . '|\((?1)\))(\?|\*|\+)?';
 		return $options & self::VALIDATE_PATH &&
-			$this->matchesRegex( '(' . $prefixedIRI . '([\/\|]' . $prefixedIRI . ')*)', $expression );
-	}
-
-	private function getPrefixedIRIRegex() {
-		return '(' . self::$prefix . ':' . self::$name . '|\<' . self::$iri . '\>)';
+			$this->regexHelper->matchesRegex( '\{path}', $expression );
 	}
 
 	private function isFunction( $expression, $options ) {
 		// @todo this might not be complete
 		return $options & self::VALIDATE_FUNCTION &&
-			$this->matchesRegex( $this->getFunctionRegex(), $expression ) &&
+			$this->regexHelper->matchesRegex( '\{function}', $expression ) &&
 			$this->checkBrackets( $expression );
 	}
 
@@ -180,45 +148,7 @@ class ExpressionValidator {
 
 	private function isFunctionAs( $expression, $options ) {
 		return $options & self::VALIDATE_FUNCTION_AS &&
-			$this->matchesRegex( $this->getFunctionRegex() . ' AS ' . self::$variable, $expression );
-	}
-
-	private function getFunctionRegex() {
-		$allowed = array_merge( self::$functions, array( '\<' . self::$iri . '\>', self::$prefix . ':', self::$variable ) );
-		return '(' . implode( '|', $allowed ) . ').*';
-	}
-
-	private function matchesRegex( $regex, $expression ) {
-		return preg_match( '/^' . $regex . '$/i', $expression );
-	}
-
-	/**
-	 * Returns the variables that occur in the given expression.
-	 *
-	 * @param string $expression
-	 * @return string[]
-	 */
-	public function getVariables( $expression ) {
-		// negative look-behind
-		if ( preg_match_all( '/(^|\W)(?<!AS )' . self::$variable . '/', $expression, $matches ) ) {
-			return $matches[2];
-		}
-
-		return array();
-	}
-
-	/**
-	 * Returns the prefixes that occur in the given expression.
-	 *
-	 * @param string $expression
-	 * @return string[]
-	 */
-	public function getPrefixes( $expression ) {
-		if ( preg_match_all( '/(^|\W)(' . self::$prefix . '):' . self::$name . '/', $expression, $matches ) ) {
-			return $matches[2];
-		}
-
-		return array();
+			$this->regexHelper->matchesRegex( '\{function} AS \{variable}', $expression );
 	}
 
 }

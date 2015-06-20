@@ -41,13 +41,9 @@ class QueryModifierBuilder {
 		$this->expressionValidator->validate( $expression,
 			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
 		);
-		$this->usageValidator->trackUsedPrefixes(
-			$this->expressionValidator->getPrefixes( $expression )
-		);
-		$this->usageValidator->trackUsedVariables(
-			$this->expressionValidator->getVariables( $expression )
-		);
 
+		$this->usageValidator->trackUsedPrefixes( $expression );
+		$this->usageValidator->trackUsedVariables( $expression );
 		$this->modifiers['GROUP BY'] = $expression;
 	}
 
@@ -58,13 +54,9 @@ class QueryModifierBuilder {
 	 */
 	public function having( $expression ) {
 		$this->expressionValidator->validate( $expression, ExpressionValidator::VALIDATE_FUNCTION );
-		$this->usageValidator->trackUsedPrefixes(
-			$this->expressionValidator->getPrefixes( $expression )
-		);
-		$this->usageValidator->trackUsedVariables(
-			$this->expressionValidator->getVariables( $expression )
-		);
 
+		$this->usageValidator->trackUsedPrefixes( $expression );
+		$this->usageValidator->trackUsedVariables( $expression );
 		$this->modifiers['HAVING'] = '(' . $expression . ')';
 	}
 
@@ -84,13 +76,9 @@ class QueryModifierBuilder {
 		$this->expressionValidator->validate( $expression,
 			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION
 		);
-		$this->usageValidator->trackUsedPrefixes(
-			$this->expressionValidator->getPrefixes( $expression )
-		);
-		$this->usageValidator->trackUsedVariables(
-			$this->expressionValidator->getVariables( $expression )
-		);
 
+		$this->usageValidator->trackUsedPrefixes( $expression );
+		$this->usageValidator->trackUsedVariables( $expression );
 		$this->modifiers['ORDER BY'] = $direction . ' (' . $expression . ')';
 	}
 
