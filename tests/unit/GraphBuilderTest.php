@@ -16,7 +16,10 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testWhere() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
-		$graphBuilder->where( '?a', '?b', '?c' );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->where( '?a', '?b', '?c' )
+		);
 
 		$this->assertEquals( ' ?a ?b ?c .', $graphBuilder->getSPARQL() );
 	}
@@ -42,30 +45,36 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 		$graphBuilder->where( '?a', '?b', null );
 	}
 
-	public function testPlus_knownSubject() {
+	public function testAlso_knownSubject() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$graphBuilder->where( '?a', '?b', '?c' );
-		$graphBuilder->also( '?x', '?y' );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->also( '?x', '?y' )
+		);
 
 		$this->assertEquals( ' ?a ?b ?c ; ?x ?y .', $graphBuilder->getSPARQL() );
 	}
 
-	public function testPlus_knownPredicate() {
+	public function testAlso_knownPredicate() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$graphBuilder->where( '?a', '?b', '?c' );
-		$graphBuilder->also( '?x' );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->also( '?x' )
+		);
 
 		$this->assertEquals( ' ?a ?b ?c , ?x .', $graphBuilder->getSPARQL() );
 	}
 
-	public function testPlus_unknownSubject() {
+	public function testAlso_unknownSubject() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$this->setExpectedException( 'InvalidArgumentException' );
 
 		$graphBuilder->also( '?x', '?y' );
 	}
 
-	public function testPlus_unknownPredicate() {
+	public function testAlso_unknownPredicate() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$this->setExpectedException( 'InvalidArgumentException' );
 
@@ -74,7 +83,10 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testFilter() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
-		$graphBuilder->filter( 'AVG (?x) > 5' );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->filter( 'AVG (?x) > 5' )
+		);
 
 		$this->assertEquals( ' FILTER (AVG (?x) > 5)', $graphBuilder->getSPARQL() );
 	}
@@ -89,14 +101,20 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testFilterExists() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$graphBuilder->where( '?a', '?b', '?c' );
-		$graphBuilder->filterExists( $graphBuilder );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->filterExists( $graphBuilder )
+		);
 
 		$this->assertEquals( ' ?a ?b ?c . FILTER EXISTS { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
 
 	public function testFilterExists_triple() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
-		$graphBuilder->filterExists( '?a', '?b', '?c' );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->filterExists( '?a', '?b', '?c' )
+		);
 
 		$this->assertEquals( ' FILTER EXISTS { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
@@ -104,14 +122,20 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testFilterNotExists() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$graphBuilder->where( '?a', '?b', '?c' );
-		$graphBuilder->filterNotExists( $graphBuilder );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->filterNotExists( $graphBuilder )
+		);
 
 		$this->assertEquals( ' ?a ?b ?c . FILTER NOT EXISTS { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
 
 	public function testFilterNotExists_triple() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
-		$graphBuilder->filterNotExists( '?a', '?b', '?c' );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->filterNotExists( '?a', '?b', '?c' )
+		);
 
 		$this->assertEquals( ' FILTER NOT EXISTS { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
@@ -119,14 +143,20 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testOptional() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$graphBuilder->where( '?a', '?b', '?c' );
-		$graphBuilder->optional( $graphBuilder );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->optional( $graphBuilder )
+		);
 
 		$this->assertEquals( ' ?a ?b ?c . OPTIONAL { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
 
 	public function testOptional_triple() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
-		$graphBuilder->optional( '?a', '?b', '?c' );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->optional( '?a', '?b', '?c' )
+		);
 
 		$this->assertEquals( ' OPTIONAL { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
@@ -134,7 +164,10 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testUnion() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$graphBuilder->where( '?a', '?b', '?c' );
-		$graphBuilder->union( $graphBuilder, $graphBuilder );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->union( $graphBuilder, $graphBuilder )
+		);
 
 		$this->assertEquals( ' ?a ?b ?c . { ?a ?b ?c . } UNION { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
@@ -143,7 +176,10 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$queryBuilder = new QueryBuilder();
 		$queryBuilder->where( '?a', '?b', '?c' );
-		$graphBuilder->subquery( $queryBuilder );
+		$this->assertSame(
+			$graphBuilder,
+			$graphBuilder->subquery( $queryBuilder )
+		);
 
 		$this->assertEquals( ' { SELECT * WHERE { ?a ?b ?c . } }', $graphBuilder->getSPARQL() );
 	}
