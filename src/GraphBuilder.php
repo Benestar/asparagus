@@ -22,14 +22,14 @@ class GraphBuilder {
 	private $conditions = array();
 
 	/**
-	 * @var string[] list of filter expressions
-	 */
-	private $filters = array();
-
-	/**
 	 * @var string[] list of optional expressions
 	 */
 	private $optionals = array();
+
+	/**
+	 * @var string[] list of filter expressions
+	 */
+	private $filters = array();
 
 	/**
 	 * @var string[] list of subqueries
@@ -249,8 +249,8 @@ class GraphBuilder {
 			$sparql .= $this->formatPredicates( $predicates ) . ' .';
 		}
 
-		$sparql .= $this->formatFilters();
 		$sparql .= $this->formatOptionals();
+		$sparql .= $this->formatFilters();
 		$sparql .= $this->formatUnions();
 
 		return $sparql;
@@ -262,16 +262,16 @@ class GraphBuilder {
 		}, array_keys( $predicates ), $predicates ) );
 	}
 
-	private function formatFilters() {
-		return implode( array_map( function( $filter ) {
-			return ' FILTER ' . $filter;
-		}, $this->filters ) );
-	}
-
 	private function formatOptionals() {
 		return implode( array_map( function( $optional ) {
 			return ' OPTIONAL {' . $optional . ' }';
 		}, $this->optionals ) );
+	}
+
+	private function formatFilters() {
+		return implode( array_map( function( $filter ) {
+			return ' FILTER ' . $filter;
+		}, $this->filters ) );
 	}
 
 	private function formatUnions() {

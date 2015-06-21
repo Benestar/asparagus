@@ -13,7 +13,6 @@ SELECT ?uniName ?founded ?stateName ?stateStart WHERE {
 		wdt:P571 ?founded .
 	?state wdt:P31 wd:Q35657 ;
 		wdt:P571 ?stateStart .
-	FILTER (?founded < ?stateStart)
 	OPTIONAL {
 		?state rdfs:label ?stateName .
 		FILTER (LANG (?stateName) = "en")
@@ -22,5 +21,6 @@ SELECT ?uniName ?founded ?stateName ?stateStart WHERE {
 		?uni rdfs:label ?uniName .
 		FILTER (LANG (?uniName) = "en")
 	}
+	FILTER (?founded < ?stateStart)
 }
 LIMIT 10

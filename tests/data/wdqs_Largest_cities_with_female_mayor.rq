@@ -13,9 +13,6 @@ SELECT DISTINCT ?city ?citylabel ?mayorlabel WHERE {
 		wdt:P1082 ?population .
 	?statement v:P6 ?mayor .
 	?mayor wdt:P21 wd:Q6581072 .
-	FILTER NOT EXISTS {
-		?statement q:P582 ?x .
-	}
 	OPTIONAL {
 		?city rdfs:label ?citylabel .
 		FILTER (LANG (?citylabel) = "en")
@@ -23,6 +20,9 @@ SELECT DISTINCT ?city ?citylabel ?mayorlabel WHERE {
 	OPTIONAL {
 		?mayor rdfs:label ?mayorlabel .
 		FILTER (LANG (?mayorlabel) = "en")
+	}
+	FILTER NOT EXISTS {
+		?statement q:P582 ?x .
 	}
 }
 ORDER BY DESC (?population)

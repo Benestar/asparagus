@@ -10,10 +10,10 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT ?h ?date WHERE {
 	?h wdt:P31 wd:Q5 ;
 		wdt:P569 ?date .
-	FILTER (?date < "1880-01-01T00:00:00Z"^^xsd:dateTime)
-	FILTER (!BOUND (?d))
 	OPTIONAL {
 		?h wdt:P570 ?d .
 	}
+	FILTER (?date < "1880-01-01T00:00:00Z"^^xsd:dateTime)
+	FILTER (!BOUND (?d))
 }
 LIMIT 100

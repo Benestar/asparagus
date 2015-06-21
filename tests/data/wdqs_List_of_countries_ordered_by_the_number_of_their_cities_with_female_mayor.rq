@@ -13,12 +13,12 @@ SELECT ?country ?label (COUNT (*) AS ?COUNT) WHERE {
 		wdt:P17 ?country .
 	?statement v:P6 ?mayor .
 	?mayor wdt:P21 wd:Q6581072 .
-	FILTER NOT EXISTS {
-		?statement q:P582 ?x .
-	}
 	OPTIONAL {
 		?country rdfs:label ?label .
 		FILTER (LANG (?label) = "en")
+	}
+	FILTER NOT EXISTS {
+		?statement q:P582 ?x .
 	}
 }
 GROUP BY ?country ?label

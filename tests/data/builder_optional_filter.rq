@@ -1,0 +1,9 @@
+PREFIX test: <http://www.example.com/test#>
+
+SELECT ?name WHERE {
+	?person test:name ?name .
+	OPTIONAL {
+		?person test:email ?email .
+	}
+	FILTER (!BOUND (?email))
+}

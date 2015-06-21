@@ -25,6 +25,16 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertIsExpected( 'basic_functionality', $queryBuilder->format() );
 	}
 
+	public function testOptionalFilter() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+		$queryBuilder->select( '?name' )
+			->where( '?person', 'test:name', '?name' )
+			->optional( '?person', 'test:email', '?email' )
+			->filter( '!BOUND (?email)' );
+
+		$this->assertIsExpected( 'optional_filter', $queryBuilder->format() );
+	}
+
 	public function testUnion() {
 		$queryBuilder = new QueryBuilder( array(
 			'dc10' => 'http://purl.org/dc/elements/1.0/',
