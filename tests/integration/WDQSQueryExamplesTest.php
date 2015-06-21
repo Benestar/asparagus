@@ -84,10 +84,7 @@ class WDQSQueryExamplesTest extends \PHPUnit_Framework_TestCase {
 			->also( 'wdt:P1082', '?population' )
 			->where( '?statement', 'v:P6', '?mayor' )
 			->where( '?mayor', 'wdt:P21', 'wd:Q6581072' )
-			->filterNotExists(
-				$queryBuilder->newSubgraph()
-					->where( '?statement', 'q:P582', '?x' )
-			)
+			->filterNotExists( '?statement', 'q:P582', '?x' )
 			->optional(
 				$queryBuilder->newSubgraph()
 					->where( '?city', 'rdfs:label', '?citylabel' )
@@ -113,10 +110,7 @@ class WDQSQueryExamplesTest extends \PHPUnit_Framework_TestCase {
 			->also( 'wdt:P17', '?country' )
 			->where( '?statement', 'v:P6', '?mayor' )
 			->where( '?mayor', 'wdt:P21', 'wd:Q6581072' )
-			->filterNotExists(
-				$queryBuilder->newSubgraph()
-					->where( '?statement', 'q:P582', '?x' )
-			)
+			->filterNotExists( '?statement', 'q:P582', '?x' )
 			->optional(
 				$queryBuilder->newSubgraph()
 					->where( '?country', 'rdfs:label', '?label' )

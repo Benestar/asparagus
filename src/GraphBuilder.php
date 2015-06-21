@@ -140,10 +140,14 @@ class GraphBuilder {
 	/**
 	 * Adds a filter that the given condition builder exists.
 	 *
-	 * @param GraphBuilder $graphBuilder
+	 * @param string|GraphBuilder $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
 	 * @return self
+	 * @throws InvalidArgumentException
 	 */
-	public function filterExists( GraphBuilder $graphBuilder ) {
+	public function filterExists( $subject, $predicate = null, $object = null ) {
+		$graphBuilder = $this->getGraphBuilder( $subject, $predicate, $object );
 		$this->filters[] = 'EXISTS {' . $graphBuilder->getSPARQL() . ' }';
 
 		return $this;
@@ -152,10 +156,14 @@ class GraphBuilder {
 	/**
 	 * Adds a filter that the given condition builder does not exist.
 	 *
-	 * @param GraphBuilder $graphBuilder
+	 * @param string|GraphBuilder $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
 	 * @return self
+	 * @throws InvalidArgumentException
 	 */
-	public function filterNotExists( GraphBuilder $graphBuilder ) {
+	public function filterNotExists( $subject, $predicate = null, $object = null ) {
+		$graphBuilder = $this->getGraphBuilder( $subject, $predicate, $object );
 		$this->filters[] = 'NOT EXISTS {' . $graphBuilder->getSPARQL() . ' }';
 
 		return $this;
@@ -171,16 +179,19 @@ class GraphBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function optional( $subject, $predicate = null, $object = null ) {
-		$graphBuilder = $subject;
-
-		if ( !( $subject instanceof GraphBuilder ) ) {
-			$graphBuilder = new GraphBuilder( $this->usageValidator );
-			$graphBuilder->where( $subject, $predicate, $object );
-		}
-
+		$graphBuilder = $this->getGraphBuilder( $subject, $predicate, $object );
 		$this->optionals[] = $graphBuilder->getSPARQL();
 
 		return $this;
+	}
+
+	private function getGraphBuilder( $subject, $predicate, $object ) {
+		if ( $subject instanceof GraphBuilder ) {
+			return $subject;
+		}
+
+		$graphBuilder = new GraphBuilder( $this->usageValidator );
+		return $graphBuilder->where( $subject, $predicate, $object );
 	}
 
 	/**

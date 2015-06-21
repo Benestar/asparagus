@@ -176,11 +176,14 @@ class QueryBuilder {
 	 *
 	 * @since 0.3
 	 *
-	 * @param GraphBuilder $graphBuilder
+	 * @param string|GraphBuilder $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
 	 * @return self
+	 * @throws InvalidArgumentException
 	 */
-	public function filterExists( GraphBuilder $graphBuilder ) {
-		$this->graphBuilder->filterExists( $graphBuilder );
+	public function filterExists( $subject, $predicate = null, $object = null ) {
+		$this->graphBuilder->filterExists( $subject, $predicate, $object );
 		return $this;
 	}
 
@@ -189,11 +192,14 @@ class QueryBuilder {
 	 *
 	 * @since 0.3
 	 *
-	 * @param GraphBuilder $graphBuilder
+	 * @param string|GraphBuilder $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
 	 * @return self
+	 * @throws InvalidArgumentException
 	 */
-	public function filterNotExists( GraphBuilder $graphBuilder ) {
-		$this->graphBuilder->filterNotExists( $graphBuilder );
+	public function filterNotExists( $subject, $predicate = null, $object = null ) {
+		$this->graphBuilder->filterNotExists( $subject, $predicate, $object );
 		return $this;
 	}
 
