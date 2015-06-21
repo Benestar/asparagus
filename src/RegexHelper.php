@@ -62,11 +62,12 @@ class RegexHelper {
 	 * @return bool
 	 */
 	public function matchesRegex( $regex, $expression ) {
-		return preg_match( '/^' . $this->resolveMagic( $regex ) . '$/i', $expression );
+		return preg_match( '/^' . $this->resolveMagic( $regex ) . '$/i', $expression ) === 1;
 	}
 
 	/**
 	 * Returns all matching groups for the given regex.
+	 * String and IRI equences are automatically escaped.
 	 *
 	 * @param string $regex
 	 * @param string $expression
@@ -92,7 +93,8 @@ class RegexHelper {
 	 * @param string[] $replacements
 	 * @return string
 	 */
-	public function escapeSequences( $expression, array &$replacements = array() ) {
+	public function escapeSequences( $expression, &$replacements = null ) {
+		$replacements = array();
 		// @todo this is not completely safe but works in most cases
 		// @todo for strings use http://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
 		return preg_replace_callback(
@@ -125,7 +127,7 @@ class RegexHelper {
 	}
 
 	private function getPathRegex() {
-		$element = '[\^!]*(a|' . $this->getPrefixedIRIRegex() . '|\((?1)\))(\?|\*|\+)?';
+		$element = '!?\^?(a|' . $this->getPrefixedIRIRegex() . '|\((?1)\))(\?|\*|\+)?';
 		return '(' . $element . '([\/\|]' . $element . ')*)';
 	}
 
