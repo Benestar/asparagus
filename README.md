@@ -56,6 +56,8 @@ full support for all query modifiers SPARQL provides.
 The `QueryBuilder` instance can be passed to a `QueryExecuter` or the SPARQL can be obtained
 as is using `getSPARQL` or formatted using `format`.
 
+### Basic functionality
+
 In the following example, a simple SPARQL query is generated asking for all persons who
 have a name and an email address stored in the database.
 
@@ -87,7 +89,7 @@ SELECT ?name ?email WHERE {
 LIMIT 10
 ```
 
-### Filters and optionals
+### Optionals and filters
 
 The following snippet creates a more complex query using optional values and filters. Only persons
 who do not have their email address deposited in the database are shown.
