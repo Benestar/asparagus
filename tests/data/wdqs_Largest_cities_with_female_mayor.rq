@@ -25,4 +25,5 @@ SELECT DISTINCT ?city ?citylabel ?mayorlabel WHERE {
 		FILTER (LANG (?mayorlabel) = "en")
 	}
 }
-ORDER BY DESC (?population) LIMIT 10
+ORDER BY DESC (?population)
+LIMIT 10

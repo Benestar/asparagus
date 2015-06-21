@@ -145,6 +145,38 @@ class WDQSQueryExamplesTest extends \PHPUnit_Framework_TestCase {
 		$this->assertIsExpected( 'How_many_states_this_US_state_borders', $queryBuilder->format() );
 	}
 
+	public function testWhoseBirthdayIsToday() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?entity', '(YEAR(?date) AS ?YEAR)' )
+			->where( '?entityS', 'wdt:P569', '?date' )
+			->also( 'rdfs:label', '?entity' )
+			->filter( 'DATATYPE (?date) = xsd:dateTime' )
+			->filter( 'MONTH (?date) = MONTH (NOW ())' )
+			->filter( 'DAY (?date) = DAY (NOW ())' )
+			->limit( 10 );
+
+		$this->assertIsExpected( 'Whose_birthday_is_today', $queryBuilder->format() );
+	}
+
+	public function testWhoDiscoveredTheMostAsteroids() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?discoverer', '?name', '(COUNT (?asteroid) AS ?count)' )
+			->where( '?asteroid', 'wdt:P31', 'wd:Q3863' )
+			->also( 'wdt:P61', '?discoverer' )
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?discoverer', 'rdfs:label', '?name' )
+					->filter( 'LANG(?name) = "en"' )
+			)
+			->groupBy( '?discoverer', '?name' )
+			->orderBy( '?count', 'DESC' )
+			->limit( 10 );
+
+		$this->assertIsExpected( 'Who_discovered_the_most_asteroids', $queryBuilder->format() );
+	}
+
 	private function assertIsExpected( $name, $sparql ) {
 		$expected = file_get_contents( __DIR__ . '/../data/wdqs_' . $name . '.rq' );
 
