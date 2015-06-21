@@ -123,6 +123,28 @@ class WDQSQueryExamplesTest extends \PHPUnit_Framework_TestCase {
 		$this->assertIsExpected( 'List_of_countries_ordered_by_the_number_of_their_cities_with_female_mayor', $queryBuilder->format() );
 	}
 
+	public function testsHowManyStatesThisUSStateBorders() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?state', '?stateL', '?borders' )
+			->subquery(
+				$queryBuilder->newSubquery()
+					->select( '?state', '(COUNT (?otherState) AS ?borders)' )
+					->where( '?state', 'wdt:P31', 'wd:Q35657' )
+					->where( '?otherState', 'wdt:P47', '?state' )
+					->also( 'wdt:P31', 'wd:Q35657' )
+					->groupBy( '?state' )
+			)
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?state', 'rdfs:label', '?stateL' )
+					->filter( 'LANG(?stateL) = "en"' )
+			)
+			->orderBy( '?borders', 'DESC' );
+
+		$this->assertIsExpected( 'How_many_states_this_US_state_borders', $queryBuilder->format() );
+	}
+
 	private function assertIsExpected( $name, $sparql ) {
 		$expected = file_get_contents( __DIR__ . '/../data/wdqs_' . $name . '.rq' );
 

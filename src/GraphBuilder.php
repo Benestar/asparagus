@@ -226,6 +226,11 @@ class GraphBuilder {
 		$this->subqueries[] = $queryBuilder->getSPARQL( false );
 		$this->usageValidator->trackDefinedVariables( implode( ' ', $queryBuilder->getSelects() ) );
 
+		// @todo temp hack to add AS definitions to defined variables
+		$regexHelper = new RegexHelper();
+		$matches = $regexHelper->getMatches( 'AS \{variable}', implode( ' ', $queryBuilder->getSelects() ) );
+		$this->usageValidator->trackDefinedVariables( $matches );
+
 		return $this;
 	}
 

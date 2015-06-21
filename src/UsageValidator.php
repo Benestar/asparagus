@@ -51,7 +51,7 @@ class UsageValidator {
 			$variables = $this->matchVariables( $variables );
 		}
 
-		$this->usedVariables = array_merge( $this->usedVariables, $variables );
+		$this->usedVariables = array_unique( array_merge( $this->usedVariables, $variables ) );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class UsageValidator {
 			$variables = $this->matchVariables( $variables );
 		}
 
-		$this->definedVariables = array_merge( $this->definedVariables, $variables );
+		$this->definedVariables = array_unique( array_merge( $this->definedVariables, $variables ) );
 	}
 
 	/**

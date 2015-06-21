@@ -1,0 +1,24 @@
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX v: <http://www.wikidata.org/prop/statement/>
+PREFIX q: <http://www.wikidata.org/prop/qualifier/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?state ?stateL ?borders WHERE {
+	{
+		SELECT ?state (COUNT (?otherState) AS ?borders) WHERE {
+			?state wdt:P31 wd:Q35657 .
+			?otherState wdt:P47 ?state ;
+				wdt:P31 wd:Q35657 .
+		}
+		GROUP BY ?state
+	}
+	OPTIONAL {
+		?state rdfs:label ?stateL .
+		FILTER (LANG (?stateL) = "en")
+	}
+}
+ORDER BY DESC (?borders)

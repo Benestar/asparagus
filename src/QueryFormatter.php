@@ -73,7 +73,7 @@ class QueryFormatter {
 			$this->formattedParts[] = "\n";
 		}
 
-		if ( $part === 'SELECT' ) {
+		if ( $part === 'SELECT' && $this->indentationLevel === 0 ) {
 			$this->trimEnd();
 			$this->formattedParts[] = "\n\n";
 		}
