@@ -56,7 +56,7 @@ full support for all query modifiers SPARQL provides.
 The `QueryBuilder` instance can be passed to a `QueryExecuter` or the SPARQL can be obtained
 as is using `getSPARQL` or formatted using `format`.
 
-In the following example, a simple SPARQL query is generated asking for all persons which
+In the following example, a simple SPARQL query is generated asking for all persons who
 have a name and an email address stored in the database.
 
 ```php
@@ -91,7 +91,84 @@ More complex queries can be built by using subgraphs or subqueries. To create a 
 subquery, you can call `QueryBuilder::newSubgraph` or `QueryBuilder::newSubquery`. `GraphBuilder`
 supports all graph functions also supported by `QueryBuilder` and it will return itself as well.
 
-The following snippet creates a more complex query using optional values and filters:
+The following snippet creates a more complex query using optional values and filters. Only persons
+who do not have their email address deposited in the database are shown.
+
+```php
+use Asparagus\QueryBuilder;
+
+$prefixes = array(
+	'test' => 'http://www.example.com/test#'
+);
+
+$queryBuilder = new QueryBuilder( $prefixes );
+$queryBuilder->select( '?name' )
+	->where( '?person', 'test:name', '?name' )
+	->optional( '?person', 'test:email', '?email' )
+	->filter( '!BOUND (?email)' );
+
+echo $queryBuilder->format();
+```
+
+The generated query looks like:
+
+```sparql
+PREFIX test: <http://www.example.com/test#>
+
+SELECT ?name WHERE {
+	?person test:name ?name .
+	OPTIONAL {
+		?person test:email ?email .
+	}
+	FILTER (!BOUND (?email))
+}
+```
+
+If alternative conditions should be matched, you can use `QueryBuilder::union` to specify several
+graph patterns which are all allowed.
+
+The next query returns titles and authors of books recorded using Dublin Core properties from
+version 1.0 or version 1.1.
+
+```php
+use Asparagus\QueryBuilder;
+
+$prefixes = array(
+	'dc10' => 'http://purl.org/dc/elements/1.0/',
+	'dc11' => 'http://purl.org/dc/elements/1.1/'
+);
+
+$queryBuilder = new QueryBuilder( $prefixes );
+
+$queryBuilder->select( '?title', '?author' )
+	->union(
+		$queryBuilder->newSubgraph()
+			->where( '?book', 'dc10:title', '?title' )
+			->also( 'dc10:creator', '?author' ),
+		$queryBuilder->newSubgraph()
+			->where( '?book', 'dc11:title', '?title' )
+			->also( 'dc11:creator', '?author' )
+	);
+
+echo $queryBuilder->format();
+```
+
+The generated query looks like:
+
+```sparql
+PREFIX dc10: <http://purl.org/dc/elements/1.0/>
+PREFIX dc11: <http://purl.org/dc/elements/1.1/>
+
+SELECT ?title ?author WHERE {
+	{
+		?book dc10:title ?title ;
+			dc10:creator ?author .
+	} UNION {
+		?book dc11:title ?title ;
+			dc11:creator ?author .
+	}
+}
+```
 
 ## Tests
 
