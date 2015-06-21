@@ -25,6 +25,25 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertIsExpected( 'basic_functionality', $queryBuilder->format() );
 	}
 
+	public function testUnion() {
+		$queryBuilder = new QueryBuilder( array(
+			'dc10' => 'http://purl.org/dc/elements/1.0/',
+			'dc11' => 'http://purl.org/dc/elements/1.1/'
+		) );
+
+		$queryBuilder->select( '?title', '?author' )
+			->union(
+				$queryBuilder->newSubgraph()
+					->where( '?book', 'dc10:title', '?title' )
+					->also( 'dc10:creator', '?author' ),
+				$queryBuilder->newSubgraph()
+					->where( '?book', 'dc11:title', '?title' )
+					->also( 'dc11:creator', '?author' )
+			);
+
+		$this->assertIsExpected( 'union', $queryBuilder->format() );
+	}
+
 	public function testUndefinedPrefixDetected() {
 		$queryBuilder = new QueryBuilder( self::$prefixes );
 
