@@ -5,8 +5,7 @@ SELECT ?title ?author WHERE {
 	{
 		?book dc10:title ?title ;
 			dc10:creator ?author .
-	}
-	UNION {
+	} UNION {
 		?book dc11:title ?title ;
 			dc11:creator ?author .
 	}

@@ -78,7 +78,8 @@ class QueryFormatter {
 			$this->formattedParts[] = "\n\n";
 		}
 
-		if ( end( $this->formattedParts ) !== "\n" &&
+		// UNION is the only part we want to have in-line with "}", ie. } UNION {
+		if ( $part === 'UNION' || end( $this->formattedParts ) !== "\n" &&
 			in_array( $part, array( '.', '=', '(', '<', '{', '?', '$' ) )
 		) {
 			$this->trimEnd();
@@ -103,7 +104,8 @@ class QueryFormatter {
 	private function append( $part ) {
 		if ( !ctype_space( $part ) ) {
 			$this->formattedParts[] = $part;
-		} else if ( !ctype_space( end( $this->formattedParts ) ) &&
+		} else if ( // ctype_space( $part ) &&
+			!ctype_space( end( $this->formattedParts ) ) &&
 			end( $this->formattedParts ) !== '('
 		) {
 			$this->formattedParts[] = ' ';
