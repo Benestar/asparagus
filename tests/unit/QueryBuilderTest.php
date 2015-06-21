@@ -2,7 +2,6 @@
 
 namespace Asparagus\Tests;
 
-use Asparagus\GraphBuilder;
 use Asparagus\QueryBuilder;
 
 /**
@@ -76,7 +75,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function testPlus() {
+	public function testAlso() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
 			$queryBuilder,
@@ -84,7 +83,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function testPlus_knownSubject() {
+	public function testAlso_knownSubject() {
 		$queryBuilder = new QueryBuilder();
 		$queryBuilder->where( '?a', '?b', '?c' );
 		$this->assertSame(
@@ -93,7 +92,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function testPlus_knownPredicate() {
+	public function testAlso_knownPredicate() {
 		$queryBuilder = new QueryBuilder();
 		$queryBuilder->where( '?a', '?b', '?c' );
 		$this->assertSame(
@@ -161,6 +160,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testNewSubgraph() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertInstanceOf( 'Asparagus\GraphBuilder', $queryBuilder->newSubgraph() );
+		$this->assertNotSame( $queryBuilder->newSubgraph(), $queryBuilder->newSubgraph() );
 	}
 
 	public function testGroupBy() {
