@@ -124,7 +124,7 @@ class WDQSQueryExamplesTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function assertIsExpected( $name, $sparql ) {
-		$expected = file_get_contents( __DIR__ . '/../data/builder_' . $name . '.rq' );
+		$expected = file_get_contents( __DIR__ . '/../data/wdqs_' . $name . '.rq' );
 
 		$this->assertEquals( $expected, $sparql, 'Query didn\'t match the expected content of integration_' . $name . '.rq' );
 	}
