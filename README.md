@@ -110,8 +110,9 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 * Added `QueryBuilder::filter`, `QueryBuilder::filterExists` and `QueryBuilder::filterNotExists`
 * Added `QueryBuilder::optional` and `QueryBuilder::union`
 * Added `QueryBuilder::newSubgraph`
-* `QueryBuilder::select` and `QueryBuilder::groupBy` now require functions to be wrapped by brackets.
+* `QueryBuilder::select` and `QueryBuilder::groupBy` now require functions to be wrapped by brackets
 * `QueryBuilder::groupBy` now accepts multiple arguments
+* `QueryBuilder::select` now supports property paths in predicates
 
 ### 0.2.1 (2015-06-19)
 
