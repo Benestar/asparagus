@@ -37,6 +37,11 @@ class GraphBuilder {
 	private $subqueries = array();
 
 	/**
+	 * @var string[] list of unions
+	 */
+	private $unions = array();
+
+	/**
 	 * @var string
 	 */
 	private $currentSubject = null;
@@ -138,7 +143,7 @@ class GraphBuilder {
 	}
 
 	/**
-	 * Adds a filter that the given condition builder exists.
+	 * Adds a filter that the given graph or triple exists.
 	 *
 	 * @param string|GraphBuilder $subject
 	 * @param string|null $predicate
@@ -154,7 +159,7 @@ class GraphBuilder {
 	}
 
 	/**
-	 * Adds a filter that the given condition builder does not exist.
+	 * Adds a filter that the given graph or triple does not exist.
 	 *
 	 * @param string|GraphBuilder $subject
 	 * @param string|null $predicate
@@ -181,7 +186,6 @@ class GraphBuilder {
 	public function optional( $subject, $predicate = null, $object = null ) {
 		$graphBuilder = $this->getGraphBuilder( $subject, $predicate, $object );
 		$this->optionals[] = $graphBuilder->getSPARQL();
-
 		return $this;
 	}
 
@@ -192,6 +196,23 @@ class GraphBuilder {
 
 		$graphBuilder = new GraphBuilder( $this->usageValidator );
 		return $graphBuilder->where( $subject, $predicate, $object );
+	}
+
+	/**
+	 * Adds the given graphs as alternative conditions.
+	 *
+	 * @param GraphBuilder|GraphBuilder[] $graphs
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function union( $graphs /* graphs ... */ ) {
+		$graphs = is_array( $graphs ) ? $graphs : func_get_args();
+
+		$this->unions[] = implode( ' UNION', array_map( function( GraphBuilder $graph ) {
+			return ' {' . $graph->getSPARQL() . ' }';
+		}, $graphs ) );
+
+		return $this;
 	}
 
 	/**
@@ -225,6 +246,7 @@ class GraphBuilder {
 
 		$sparql .= $this->formatFilters();
 		$sparql .= $this->formatOptionals();
+		$sparql .= $this->formatUnions();
 
 		return $sparql;
 	}
@@ -245,6 +267,12 @@ class GraphBuilder {
 		return implode( array_map( function( $optional ) {
 			return ' OPTIONAL {' . $optional . ' }';
 		}, $this->optionals ) );
+	}
+
+	private function formatUnions() {
+		return implode( array_map( function( $union ) {
+			return ' ' . $union;
+		}, $this->unions ) );
 	}
 
 	private function formatSubqueries() {

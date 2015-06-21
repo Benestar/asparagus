@@ -134,6 +134,14 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testUnion() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->union( $queryBuilder->newSubgraph() )
+		);
+	}
+
 	public function testSubquery() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(

@@ -172,7 +172,7 @@ class QueryBuilder {
 	}
 
 	/**
-	 * Adds a filter that the given condition builder exists.
+	 * Adds a filter that the given graph or triple exists.
 	 *
 	 * @since 0.3
 	 *
@@ -188,7 +188,7 @@ class QueryBuilder {
 	}
 
 	/**
-	 * Adds a filter that the given condition builder does not exist.
+	 * Adds a filter that the given graph or triple does not exist.
 	 *
 	 * @since 0.3
 	 *
@@ -216,6 +216,20 @@ class QueryBuilder {
 	 */
 	public function optional( $subject, $predicate = null, $object = null ) {
 		$this->graphBuilder->optional( $subject, $predicate, $object );
+		return $this;
+	}
+
+	/**
+	 * Adds the given graphs as alternative conditions.
+	 *
+	 * @since 0.3
+	 *
+	 * @param GraphBuilder|GraphBuilder[] $graphs
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function union( $graphs /* graphs ... */ ) {
+		call_user_func_array( array( $this->graphBuilder, 'union' ), func_get_args() );
 		return $this;
 	}
 
