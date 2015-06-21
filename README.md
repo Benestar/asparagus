@@ -87,9 +87,7 @@ SELECT ?name ?email WHERE {
 LIMIT 10
 ```
 
-More complex queries can be built by using subgraphs or subqueries. To create a new subgrapho or
-subquery, you can call `QueryBuilder::newSubgraph` or `QueryBuilder::newSubquery`. `GraphBuilder`
-supports all graph functions also supported by `QueryBuilder` and it will return itself as well.
+### Filters and optionals
 
 The following snippet creates a more complex query using optional values and filters. Only persons
 who do not have their email address deposited in the database are shown.
@@ -124,6 +122,11 @@ SELECT ?name WHERE {
 }
 ```
 
+### Unions
+
+More complex queries can be built by using subgraphs or subqueries. To create a new subgrapho or
+subquery, you can call `QueryBuilder::newSubgraph` or `QueryBuilder::newSubquery`. `GraphBuilder`
+supports all graph functions also supported by `QueryBuilder` and it will return itself as well.
 If alternative conditions should be matched, you can use `QueryBuilder::union` to specify several
 graph patterns which are all allowed.
 
