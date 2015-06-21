@@ -103,26 +103,26 @@ class QueryBuilder {
 	}
 
 	/**
-	 * Specifies the variables to select with duplicates eliminated.
+	 * Specifies the expressions to select. Duplicate results are eliminated.
 	 *
-	 * @param string|string[] $variables
+	 * @param string|string[] $expressions
 	 * @return self
 	 * @throws InvalidArgumentException
 	 */
-	public function selectDistinct( /* variables ... */ ) {
+	public function selectDistinct( $expressions /* expressions ... */ ) {
 		call_user_func_array( array( $this, 'select' ), func_get_args() );
 		$this->uniqueness = 'DISTINCT ';
 		return $this;
 	}
 
 	/**
-	 * Specifies the variables to select with duplicates allowed.
+	 * Specifies the expressions to select. Duplicate results may be eliminated.
 	 *
-	 * @param string|string[] $variables
+	 * @param string|string[] $expressions
 	 * @return self
 	 * @throws InvalidArgumentException
 	 */
-	public function selectReduced( /* variables ... */ ) {
+	public function selectReduced( $expressions /* expressions ... */ ) {
 		call_user_func_array( array( $this, 'select' ), func_get_args() );
 		$this->uniqueness = 'REDUCED ';
 		return $this;
