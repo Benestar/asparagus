@@ -94,12 +94,34 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( ' ?a ?b ?c . FILTER EXISTS { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
 
+	public function testFilterExists_triple() {
+		$graphBuilder = new GraphBuilder( new UsageValidator() );
+		$graphBuilder->filterExists( '?a', '?b', '?c' );
+
+		$this->assertEquals( ' FILTER EXISTS { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
+	}
+
 	public function testFilterNotExists() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$graphBuilder->where( '?a', '?b', '?c' );
 		$graphBuilder->filterNotExists( $graphBuilder );
 
 		$this->assertEquals( ' ?a ?b ?c . FILTER NOT EXISTS { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
+	}
+
+	public function testFilterNotExists_triple() {
+		$graphBuilder = new GraphBuilder( new UsageValidator() );
+		$graphBuilder->filterNotExists( '?a', '?b', '?c' );
+
+		$this->assertEquals( ' FILTER NOT EXISTS { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
+	}
+
+	public function testOptional() {
+		$graphBuilder = new GraphBuilder( new UsageValidator() );
+		$graphBuilder->where( '?a', '?b', '?c' );
+		$graphBuilder->optional( $graphBuilder );
+
+		$this->assertEquals( ' ?a ?b ?c . OPTIONAL { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
 
 	public function testOptional_triple() {
@@ -109,12 +131,12 @@ class GraphBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( ' OPTIONAL { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
 
-	public function testOptional_graph() {
+	public function testUnion() {
 		$graphBuilder = new GraphBuilder( new UsageValidator() );
 		$graphBuilder->where( '?a', '?b', '?c' );
-		$graphBuilder->optional( $graphBuilder );
+		$graphBuilder->union( $graphBuilder, $graphBuilder );
 
-		$this->assertEquals( ' ?a ?b ?c . OPTIONAL { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
+		$this->assertEquals( ' ?a ?b ?c . { ?a ?b ?c . } UNION { ?a ?b ?c . }', $graphBuilder->getSPARQL() );
 	}
 
 	public function testSubquery() {

@@ -32,14 +32,14 @@ class GraphBuilder {
 	private $filters = array();
 
 	/**
-	 * @var string[] list of subqueries
-	 */
-	private $subqueries = array();
-
-	/**
 	 * @var string[] list of unions
 	 */
 	private $unions = array();
+
+	/**
+	 * @var string[] list of subqueries
+	 */
+	private $subqueries = array();
 
 	/**
 	 * @var string
@@ -275,9 +275,7 @@ class GraphBuilder {
 	}
 
 	private function formatUnions() {
-		return implode( array_map( function( $union ) {
-			return ' ' . $union;
-		}, $this->unions ) );
+		return implode( $this->unions );
 	}
 
 	private function formatSubqueries() {
