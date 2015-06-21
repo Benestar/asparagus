@@ -94,8 +94,9 @@ class RegexHelper {
 	 */
 	public function escapeSequences( $expression, array &$replacements = array() ) {
 		// @todo this is not completely safe but works in most cases
+		// @todo for strings use http://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
 		return preg_replace_callback(
-			'/("((\\.|[^\\"])*)"|\<((\\.|[^\\<])*)\>)/',
+			'/("([^\"]*)"|\<([^\>]*)\>)/',
 			function( $match ) use ( &$replacements ) {
 				$key = '<' . md5( $match[0] ) . '>';
 				$replacements[$key] = $match[0];

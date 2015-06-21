@@ -1,0 +1,24 @@
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX v: <http://www.wikidata.org/prop/statement/>
+PREFIX q: <http://www.wikidata.org/prop/qualifier/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?property ?alias ?occurences WHERE {
+	{
+		SELECT ?alias (COUNT (?alias) AS ?occurences) WHERE {
+			?tmp a wikibase:Property ;
+				skos:altLabel ?alias .
+			FILTER (LANG (?alias) = "en")
+		}
+		GROUP BY ?alias
+	}
+	?property a wikibase:Property ;
+		skos:altLabel ?alias .
+	FILTER (?occurences > 1)
+}
+ORDER BY ASC (?alias)

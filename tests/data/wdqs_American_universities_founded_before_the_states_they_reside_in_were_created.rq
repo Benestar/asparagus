@@ -1,0 +1,26 @@
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX v: <http://www.wikidata.org/prop/statement/>
+PREFIX q: <http://www.wikidata.org/prop/qualifier/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?uniName ?founded ?stateName ?stateStart WHERE {
+	?uni wdt:P31|wdt:P279/wdt:P31 wd:Q3918 ;
+		wdt:P131+ ?state ;
+		wdt:P571 ?founded .
+	?state wdt:P31 wd:Q35657 ;
+		wdt:P571 ?stateStart .
+	FILTER (?founded < ?stateStart)
+	OPTIONAL {
+		?state rdfs:label ?stateName .
+		FILTER (LANG (?stateName) = "en")
+	}
+	OPTIONAL {
+		?uni rdfs:label ?uniName .
+		FILTER (LANG (?uniName) = "en")
+	}
+}
+LIMIT 10

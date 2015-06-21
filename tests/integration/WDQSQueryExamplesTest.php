@@ -177,6 +177,86 @@ class WDQSQueryExamplesTest extends \PHPUnit_Framework_TestCase {
 		$this->assertIsExpected( 'Who_discovered_the_most_asteroids', $queryBuilder->format() );
 	}
 
+	public function testWhoDiscoveredTheMostPlanets() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?discoverer', '?name', '(COUNT (DISTINCT ?planet) AS ?count)' )
+			->where( '?ppart', 'wdt:P279*', 'wd:Q634' )
+			->where( '?planet', 'wdt:P31', '?ppart' )
+			->also( 'wdt:P61', '?discoverer' )
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?discoverer', 'rdfs:label', '?name' )
+					->filter( 'LANG(?name) = "en"' )
+			)
+			->groupBy( '?discoverer', '?name' )
+			->orderBy( '?count', 'DESC' )
+			->limit( 10 );
+
+		$this->assertIsExpected( 'Who_discovered_the_most_planets', $queryBuilder->format() );
+	}
+
+	public function testAmericanUniversitiesFoundedBeforeTheStatesTheyResideInWereCreated() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?uniName', '?founded', '?stateName', '?stateStart' )
+			->where( '?uni', 'wdt:P31|wdt:P279/wdt:P31', 'wd:Q3918' )
+			->also( 'wdt:P131+', '?state' )
+			->also( 'wdt:P571', '?founded' )
+			->where( '?state', 'wdt:P31', 'wd:Q35657' )
+			->also( 'wdt:P571', '?stateStart' )
+			->filter( '?founded < ?stateStart' )
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?state', 'rdfs:label', '?stateName' )
+					->filter( 'LANG(?stateName) = "en"' )
+			)
+			->optional(
+				$queryBuilder->newSubgraph()
+					->where( '?uni', 'rdfs:label', '?uniName' )
+					->filter( 'LANG(?uniName) = "en"' )
+			)
+			->limit( 10 );
+
+		$this->assertIsExpected( 'American_universities_founded_before_the_states_they_reside_in_were_created', $queryBuilder->format() );
+	}
+
+	public function testWhatIsTheRelationBetweenTerrellBuckleyAndMiamiDolphins() {
+		$queryBuilder = new QueryBuilder( self::$prefixes );
+
+		$queryBuilder->select( '?l' )
+			->where( 'wd:Q5571382', '?p', 'wd:Q223243' )
+			->where( '?property', '?ref', '?p' )
+			->also( 'a', 'wikibase:Property' )
+			->also( 'rdfs:label', '?l' )
+			->filter( 'LANG(?l) = "en"' )
+			->limit( 10 );
+
+		$this->assertIsExpected( 'What_is_the_relation_between_Terrell_Buckley_and_Miami_Dolphins', $queryBuilder->format() );
+	}
+
+	public function testAliasesOfPropertiesWhichAreUsedMoreThanOnce() {
+		$queryBuilder = new QueryBuilder( self::$prefixes + array(
+			'skos' => 'http://www.w3.org/2004/02/skos/core#'
+		) );
+
+		$queryBuilder->select( '?property', '?alias', '?occurences' )
+			->subquery(
+				$queryBuilder->newSubquery()
+					->select( '?alias', '(COUNT (?alias) AS ?occurences)' )
+					->where( '?tmp', 'a', 'wikibase:Property' )
+					->also( 'skos:altLabel', '?alias' )
+					->filter( 'LANG (?alias) = "en"' )
+					->groupBy( '?alias' )
+			)
+			->where( '?property', 'a', 'wikibase:Property' )
+			->also( 'skos:altLabel', '?alias' )
+			->filter( '?occurences > 1' )
+			->orderBy( '?alias' );
+
+		$this->assertIsExpected( 'Aliases_of_properties_which_are_used_more_than_once', $queryBuilder->format() );
+	}
+
 	private function assertIsExpected( $name, $sparql ) {
 		$expected = file_get_contents( __DIR__ . '/../data/wdqs_' . $name . '.rq' );
 
