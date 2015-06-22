@@ -105,6 +105,8 @@ class QueryBuilder {
 	/**
 	 * Specifies the expressions to select. Duplicate results are eliminated.
 	 *
+	 * @since 0.3
+	 *
 	 * @param string|string[] $expressions
 	 * @return self
 	 * @throws InvalidArgumentException
@@ -117,6 +119,8 @@ class QueryBuilder {
 
 	/**
 	 * Specifies the expressions to select. Duplicate results may be eliminated.
+	 *
+	 * @since 0.3
 	 *
 	 * @param string|string[] $expressions
 	 * @return self
@@ -154,6 +158,22 @@ class QueryBuilder {
 	 */
 	public function also( $subject, $predicate = null, $object = null ) {
 		$this->graphBuilder->also( $subject, $predicate, $object );
+		return $this;
+	}
+
+	/**
+	 * Adds the given graph or triple as an optional condition.
+	 *
+	 * @since 0.3
+	 *
+	 * @param string|GraphBuilder $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function optional( $subject, $predicate = null, $object = null ) {
+		$this->graphBuilder->optional( $subject, $predicate, $object );
 		return $this;
 	}
 
@@ -200,22 +220,6 @@ class QueryBuilder {
 	 */
 	public function filterNotExists( $subject, $predicate = null, $object = null ) {
 		$this->graphBuilder->filterNotExists( $subject, $predicate, $object );
-		return $this;
-	}
-
-	/**
-	 * Adds the given graph or triple as an optional condition.
-	 *
-	 * @since 0.3
-	 *
-	 * @param string|GraphBuilder $subject
-	 * @param string|null $predicate
-	 * @param string|null $object
-	 * @return self
-	 * @throws InvalidArgumentException
-	 */
-	public function optional( $subject, $predicate = null, $object = null ) {
-		$this->graphBuilder->optional( $subject, $predicate, $object );
 		return $this;
 	}
 

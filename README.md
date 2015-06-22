@@ -30,12 +30,12 @@ the git repository and take care of loading yourself.
 To add this package as a local, per-project dependency to your project, simply add a
 dependency on `benestar/asparagus` to your project's `composer.json` file.
 Here is a minimal example of a `composer.json` file that just defines a dependency on
-Asparagus 0.2:
+Asparagus 0.3:
 
 ```js
 {
     "require": {
-        "benestar/asparagus": "~0.2"
+        "benestar/asparagus": "~0.3"
     }
 }
 ```
@@ -183,18 +183,19 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ## Release notes
 
-### 0.3 (dev)
+### 0.3 (2015-06-22)
 
 * Renamed previously package-private `QueryConditionBuilder` to `GraphBuilder`
 * Removed `QueryBuilder::hasSubquery`
+* Added `QueryBuilder::getSelects`
 * Added `QueryBuilder::selectDistinct` and `QueryBuilder::selectReduced`
-* Added `QueryBuilder::getVariables`
+* Added `QueryBuilder::optional`
 * Added `QueryBuilder::filter`, `QueryBuilder::filterExists` and `QueryBuilder::filterNotExists`
-* Added `QueryBuilder::optional` and `QueryBuilder::union`
+* Added `QueryBuilder::union`
 * Added `QueryBuilder::newSubgraph`
 * `QueryBuilder::select` and `QueryBuilder::groupBy` now require functions to be wrapped by brackets
 * `QueryBuilder::groupBy` now accepts multiple arguments
-* `QueryBuilder::select` now supports property paths in predicates
+* `QueryBuilder::where` and `QueryBuilder::also` now support property paths in predicates
 
 ### 0.2.1 (2015-06-19)
 
