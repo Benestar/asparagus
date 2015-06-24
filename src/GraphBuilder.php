@@ -83,13 +83,13 @@ class GraphBuilder {
 	 */
 	public function where( $subject, $predicate, $object ) {
 		$this->expressionValidator->validate( $subject,
-			ExpressionValidator::VALIDATE_PREFIXED_IRI | ExpressionValidator::VALIDATE_VARIABLE
+			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_PREFIXED_IRI
 		);
 		$this->expressionValidator->validate( $predicate,
-			ExpressionValidator::VALIDATE_PATH | ExpressionValidator::VALIDATE_VARIABLE
+			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_PATH
 		);
 		$this->expressionValidator->validate( $object,
-			ExpressionValidator::VALIDATE_PREFIXED_IRI | ExpressionValidator::VALIDATE_VARIABLE
+			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_PREFIXED_IRI | ExpressionValidator::VALIDATE_NATIVE
 		);
 
 		$this->usageValidator->trackUsedPrefixes(  $subject . ' ' . $predicate . ' ' . $object );

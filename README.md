@@ -183,6 +183,10 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ## Release notes
 
+### 0.3.1 (dev)
+
+* Added support for native values in selects
+
 ### 0.3 (2015-06-22)
 
 * Renamed previously package-private `QueryConditionBuilder` to `GraphBuilder`

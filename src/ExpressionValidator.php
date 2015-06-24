@@ -15,7 +15,7 @@ class ExpressionValidator {
 	/**
 	 * Accept all expressions
 	 */
-	const VALIDATE_ALL = 127;
+	const VALIDATE_ALL = 255;
 
 	/**
 	 * Accept variables
@@ -38,19 +38,24 @@ class ExpressionValidator {
 	const VALIDATE_PREFIXED_IRI = 8;
 
 	/**
+	 * Accept native values
+	 */
+	const VALIDATE_NATIVE = 16;
+
+	/**
 	 * Accepts property paths
 	 */
-	const VALIDATE_PATH = 16;
+	const VALIDATE_PATH = 32;
 
 	/**
 	 * Accept functions
 	 */
-	const VALIDATE_FUNCTION = 32;
+	const VALIDATE_FUNCTION = 64;
 
 	/**
 	 * Accept functions with variable assignments
 	 */
-	const VALIDATE_FUNCTION_AS = 64;
+	const VALIDATE_FUNCTION_AS = 128;
 
 	/**
 	 * @var RegexHelper
@@ -76,7 +81,7 @@ class ExpressionValidator {
 
 		if ( !$this->matches( $expression, $options ) ) {
 			throw new InvalidArgumentException( '$expression has to be a ' .
-				implode( ' or a ', $this->getOptionNames( $options ) )
+				implode( ' or a ', $this->getOptionNames( $options ) ) . ', got ' . $expression
 			);
 		}
 	}
@@ -87,6 +92,7 @@ class ExpressionValidator {
 			'IRI' => self::VALIDATE_IRI,
 			'prefix' => self::VALIDATE_PREFIX,
 			'prefixed IRI' => self::VALIDATE_PREFIXED_IRI,
+			'native' => self::VALIDATE_NATIVE,
 			'path' => self::VALIDATE_PATH,
 			'function' => self::VALIDATE_FUNCTION,
 			'function with variable assignment' => self::VALIDATE_FUNCTION_AS
@@ -103,7 +109,8 @@ class ExpressionValidator {
 		return $this->isVariable( $expression, $options ) ||
 			$this->isIRI( $expression, $options ) ||
 			$this->isPrefix( $expression, $options ) ||
-			$this->isPrefixedIRI( $expression, $options ) ||
+			$this->isPrefixedIri( $expression, $options ) ||
+			$this->isValue( $expression, $options ) ||
 			$this->isPath( $expression, $options ) ||
 			$this->isFunction( $expression, $options ) ||
 			$this->isFunctionAs( $expression, $options );
@@ -124,9 +131,14 @@ class ExpressionValidator {
 			$this->regexHelper->matchesRegex( '\{prefix}', $expression );
 	}
 
-	private function isPrefixedIRI( $expression, $options ) {
+	private function isPrefixedIri( $expression, $options ) {
 		return $options & self::VALIDATE_PREFIXED_IRI &&
 			$this->regexHelper->matchesRegex( '\{prefixed_iri}', $expression );
+	}
+
+	private function isValue( $expression, $options ) {
+		return $options & self::VALIDATE_NATIVE &&
+			$this->regexHelper->matchesRegex( '\{native}', $expression );
 	}
 
 	private function isPath( $expression, $options ) {

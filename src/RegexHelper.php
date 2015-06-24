@@ -11,6 +11,7 @@ namespace Asparagus;
  * - \{prefix}
  * - \{name}
  * - \{prefixed_iri}
+ * - \{native}
  * - \{path}
  * - \{function}
  *
@@ -38,6 +39,11 @@ class RegexHelper {
 	 * @var string regex to match names after prefixes
 	 */
 	private static $name = '\w+';
+
+	/**
+	 * @var string regex to match strings and numbers
+	 */
+	private static $native = '([0-9]+|".*")';
 
 	/**
 	 * @var string[] list of natively supported functions
@@ -115,6 +121,7 @@ class RegexHelper {
 			'\{prefix}' => self::$prefix,
 			'\{name}' => self::$name,
 			'\{prefixed_iri}' => $this->getPrefixedIriRegex(),
+			'\{native}' => self::$native,
 			'\{path}' => $this->getPathRegex(),
 			'\{function}' => $this->getFunctionRegex()
 		);
@@ -127,7 +134,7 @@ class RegexHelper {
 	}
 
 	private function getPathRegex() {
-		$element = '!?\^?(a|' . $this->getPrefixedIRIRegex() . '|\((?1)\))(\?|\*|\+)?';
+		$element = '!?\^?(a|' . $this->getPrefixedIriRegex() . '|\((?1)\))(\?|\*|\+)?';
 		return '(' . $element . '([\/\|]' . $element . ')*)';
 	}
 
