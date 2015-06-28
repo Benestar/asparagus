@@ -64,10 +64,17 @@ class QueryExecuter {
 			throw new InvalidArgumentException( '$query has to be a string or an instance of QueryBuilder' );
 		}
 
-		return json_decode( $this->http->request( $this->url, array(
+		$result = $this->getResult( $query );
+		return $result['search'];
+	}
+
+	private function getResult( $query ) {
+		$result = $this->http->request( $this->url, array(
 			$this->options['queryParam'] => $query,
 			$this->options['formatParam'] => 'json'
-		) ), true );
+		) );
+
+		return json_decode( $result, true );
 	}
 
 }

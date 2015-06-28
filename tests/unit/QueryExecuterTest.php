@@ -24,7 +24,7 @@ class QueryExecuterTest extends \PHPUnit_Framework_TestCase {
 				$this->equalTo( 'test.example.com' ),
 				$this->equalTo( $params )
 			)
-			->will( $this->returnValue( '{"nyan":"~=[,,_,,]:3"}' ) );
+			->will( $this->returnValue( '{"search":"~=[,,_,,]:3"}' ) );
 
 		return $http;
 	}
@@ -38,7 +38,7 @@ class QueryExecuterTest extends \PHPUnit_Framework_TestCase {
 		$queryExecuter = new QueryExecuter( 'test.example.com', array(), $http );
 		$result = $queryExecuter->execute( 'FooBar' );
 
-		$this->assertEquals( array( 'nyan' => '~=[,,_,,]:3' ), $result );
+		$this->assertEquals( '~=[,,_,,]:3', $result );
 	}
 
 	public function testExecuteCustomParams() {
@@ -54,7 +54,7 @@ class QueryExecuterTest extends \PHPUnit_Framework_TestCase {
 
 		$result = $queryExecuter->execute( 'FooBar' );
 
-		$this->assertEquals( array( 'nyan' => '~=[,,_,,]:3' ), $result );
+		$this->assertEquals( '~=[,,_,,]:3', $result );
 	}
 
 	public function testExecuteQueryBuilder() {
@@ -66,7 +66,7 @@ class QueryExecuterTest extends \PHPUnit_Framework_TestCase {
 		$queryExecuter = new QueryExecuter( 'test.example.com', array(), $http );
 		$result = $queryExecuter->execute( new QueryBuilder() );
 
-		$this->assertEquals( array( 'nyan' => '~=[,,_,,]:3' ), $result );
+		$this->assertEquals( '~=[,,_,,]:3', $result );
 	}
 
 	public function testExecuteInvalidArgument() {
