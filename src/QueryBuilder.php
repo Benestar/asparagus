@@ -17,7 +17,24 @@ use RangeException;
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class QueryBuilder {
-
+        
+        /**
+         * Select query
+         */
+        CONST TYPE_SELECT = 'SELECT';
+        
+        /**
+         * Describe query
+         */
+        CONST TYPE_DESCRIBE = 'DESCRIBE';
+        
+        /**
+         * Current type defaults to select)
+         * 
+         * @var string
+         */
+        private $currentType = self::TYPE_SELECT;
+        
 	/**
 	 * @var ExpressionValidator
 	 */
@@ -75,6 +92,18 @@ class QueryBuilder {
 	}
 
 	/**
+	 * Specifies the expressions to describe.
+	 *
+	 * @param string|string[] $expressions
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */        
+        public function describe($expressions) {
+            $this->currentType = self::TYPE_DESCRIBE;
+            return $this->select($expressions);
+        }
+        
+	/**
 	 * Specifies the expressions to select.
 	 *
 	 * @param string|string[] $expressions
@@ -102,7 +131,7 @@ class QueryBuilder {
 		return $this;
 	}
 
-	/**
+        /**
 	 * Specifies the expressions to select. Duplicate results are eliminated.
 	 *
 	 * @since 0.3
@@ -348,7 +377,7 @@ class QueryBuilder {
 		$this->usageValidator->validate();
 
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
-		$sparql .= 'SELECT ' . $this->uniqueness . $this->formatSelects() . ' WHERE';
+		$sparql .= $this->currentType . ' ' . $this->uniqueness . $this->formatSelects() . ' WHERE';
 		$sparql .= ' {' . $this->graphBuilder->getSPARQL() . ' }';
 		$sparql .= $this->modifierBuilder->getSPARQL();
 
