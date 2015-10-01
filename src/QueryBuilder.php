@@ -18,7 +18,7 @@ use RuntimeException;
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class QueryBuilder {
-        
+
 	/**
 	 * @var ExpressionValidator
 	 */
@@ -79,7 +79,7 @@ class QueryBuilder {
 	public function getSelects() {
 		return $this->selects;
 	}
-        
+
 	/**
 	 * Specifies the expressions to select.
 	 *
@@ -105,6 +105,7 @@ class QueryBuilder {
 	 * @param string|string[] $expressions
 	 * @return self
 	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public function selectDistinct( $expressions /* expressions ... */ ) {
 		$expressions = is_array( $expressions ) ? $expressions : func_get_args();
@@ -124,6 +125,7 @@ class QueryBuilder {
 	 * @param string|string[] $expressions
 	 * @return self
 	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public function selectReduced( $expressions /* expressions ... */ ) {
 		$expressions = is_array( $expressions ) ? $expressions : func_get_args();
@@ -401,6 +403,7 @@ class QueryBuilder {
 		$this->usageValidator->validate();
 
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
+		// @todo throw an exception instead of defaulting to SELECT?
 		$sparql .= $this->queryForm ?: 'SELECT';
 		$sparql .= ' ' . $this->uniqueness . $this->formatSelects() . ' WHERE';
 		$sparql .= ' {' . $this->graphBuilder->getSPARQL() . ' }';

@@ -97,6 +97,17 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$queryBuilder->getSPARQL();
 	}
 
+	public function testDescribe_queryFormAlreadySet() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->select( '?a', '?b' )
+		);
+
+		$this->setExpectedException( 'RuntimeException' );
+		$queryBuilder->describe( 'foo:bar' );
+	}
+
 	public function testWhere() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
