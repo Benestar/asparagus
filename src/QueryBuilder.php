@@ -4,6 +4,7 @@ namespace Asparagus;
 
 use InvalidArgumentException;
 use RangeException;
+use RuntimeException;
 
 /**
  * Abstraction layer to build SPARQL queries
@@ -17,23 +18,6 @@ use RangeException;
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class QueryBuilder {
-        
-        /**
-         * Select query
-         */
-        CONST TYPE_SELECT = 'SELECT';
-        
-        /**
-         * Describe query
-         */
-        CONST TYPE_DESCRIBE = 'DESCRIBE';
-        
-        /**
-         * Current type defaults to select)
-         * 
-         * @var string
-         */
-        private $currentType = self::TYPE_SELECT;
         
 	/**
 	 * @var ExpressionValidator
@@ -59,6 +43,11 @@ class QueryBuilder {
 	 * @var string uniqueness constraint, one of DISTINCT, REDUCED or empty
 	 */
 	private $uniqueness = '';
+
+	/**
+	 * @var string form of the query, one of SELECT or DESCRIBE
+	 */
+	private $queryForm = null;
 
 	/**
 	 * @var GraphBuilder
@@ -90,18 +79,6 @@ class QueryBuilder {
 	public function getSelects() {
 		return $this->selects;
 	}
-
-	/**
-	 * Specifies the expressions to describe.
-	 *
-	 * @param string|string[] $expressions
-	 * @return self
-	 * @throws InvalidArgumentException
-	 */        
-        public function describe($expressions) {
-            $this->currentType = self::TYPE_DESCRIBE;
-            return $this->select($expressions);
-        }
         
 	/**
 	 * Specifies the expressions to select.
@@ -109,29 +86,18 @@ class QueryBuilder {
 	 * @param string|string[] $expressions
 	 * @return self
 	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public function select( $expressions /* expressions ... */ ) {
 		$expressions = is_array( $expressions ) ? $expressions : func_get_args();
 
-		foreach ( $expressions as $expression ) {
-			$this->expressionValidator->validate( $expression,
-				ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
-			);
-
-			// @todo temp hack to add AS definitions to defined variables
-			$regexHelper = new RegexHelper();
-			$matches = $regexHelper->getMatches( 'AS \{variable}', $expression );
-			$this->usageValidator->trackDefinedVariables( $matches );
-
-			// @todo detect functions and wrap with brackets automatically
-			$this->usageValidator->trackUsedVariables( $expression );
-			$this->selects[] = $expression;
-		}
+		$this->setQueryForm( 'SELECT' );
+		$this->addExpressions( $expressions );
 
 		return $this;
 	}
 
-        /**
+	/**
 	 * Specifies the expressions to select. Duplicate results are eliminated.
 	 *
 	 * @since 0.3
@@ -141,8 +107,12 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function selectDistinct( $expressions /* expressions ... */ ) {
-		call_user_func_array( array( $this, 'select' ), func_get_args() );
+		$expressions = is_array( $expressions ) ? $expressions : func_get_args();
+
+		$this->setQueryForm( 'SELECT' );
 		$this->uniqueness = 'DISTINCT ';
+		$this->addExpressions( $expressions );
+
 		return $this;
 	}
 
@@ -156,9 +126,63 @@ class QueryBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function selectReduced( $expressions /* expressions ... */ ) {
-		call_user_func_array( array( $this, 'select' ), func_get_args() );
+		$expressions = is_array( $expressions ) ? $expressions : func_get_args();
+
+		$this->setQueryForm( 'SELECT' );
 		$this->uniqueness = 'REDUCED ';
+		$this->addExpressions( $expressions );
+
 		return $this;
+	}
+
+	/**
+	 * Specifies the expressions to describe.
+	 *
+	 * @since 0.4
+	 *
+	 * @param string|string[] $expressions
+	 * @return self
+	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
+	 */
+	public function describe( $expressions /* expressions ... */ ) {
+		$expressions = is_array( $expressions ) ? $expressions : func_get_args();
+
+		$this->setQueryForm( 'DESCRIBE' );
+		$this->addExpressions(
+			$expressions,
+			ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
+				| ExpressionValidator::VALIDATE_IRI | ExpressionValidator::VALIDATE_PREFIXED_IRI
+		);
+
+		return $this;
+	}
+
+	private function setQueryForm( $queryForm ) {
+		if ( $this->queryForm !== null ) {
+			throw new RuntimeException( 'Query type is already set to ' . $this->queryForm );
+		}
+
+		$this->queryForm = $queryForm;
+	}
+
+	private function addExpressions( array $expressions, $options = null ) {
+		foreach ( $expressions as $expression ) {
+			$this->expressionValidator->validate(
+				$expression,
+				$options ?: ExpressionValidator::VALIDATE_VARIABLE | ExpressionValidator::VALIDATE_FUNCTION_AS
+			);
+
+			// @todo temp hack to add AS definitions to defined variables
+			$regexHelper = new RegexHelper();
+			$matches = $regexHelper->getMatches( 'AS \{variable}', $expression );
+			$this->usageValidator->trackDefinedVariables( $matches );
+
+			// @todo detect functions and wrap with brackets automatically
+			$this->usageValidator->trackUsedVariables( $expression );
+			$this->usageValidator->trackUsedPrefixes( $expression );
+			$this->selects[] = $expression;
+		}
 	}
 
 	/**
@@ -377,7 +401,8 @@ class QueryBuilder {
 		$this->usageValidator->validate();
 
 		$sparql = $includePrefixes ? $this->prefixBuilder->getSPARQL() : '';
-		$sparql .= $this->currentType . ' ' . $this->uniqueness . $this->formatSelects() . ' WHERE';
+		$sparql .= $this->queryForm ?: 'SELECT';
+		$sparql .= ' ' . $this->uniqueness . $this->formatSelects() . ' WHERE';
 		$sparql .= ' {' . $this->graphBuilder->getSPARQL() . ' }';
 		$sparql .= $this->modifierBuilder->getSPARQL();
 

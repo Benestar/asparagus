@@ -183,6 +183,10 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ## Release notes
 
+### 0.3.2 (2015-10-01)
+
+* Added `QueryBuilder::describe`
+
 ### 0.3.1 (2015-09-06)
 
 * Added support for native values in selects

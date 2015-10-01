@@ -67,6 +67,36 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testDescribe() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->describe( '?a', '?b', '<foo:bar>' )
+		);
+
+		// use variables ?a and ?b
+		$queryBuilder->where( '?a', '?b', '?c' );
+
+		$this->assertEquals(
+			'DESCRIBE ?a ?b <foo:bar> WHERE { ?a ?b ?c . }',
+			$queryBuilder->getSPARQL()
+		);
+	}
+
+	public function testDescribe_undefinedPrefix() {
+		$queryBuilder = new QueryBuilder();
+		$this->assertSame(
+			$queryBuilder,
+			$queryBuilder->describe( 'foo:bar' )
+		);
+
+		// use variables ?a and ?b
+		$queryBuilder->where( '?a', '?b', '?c' );
+
+		$this->setExpectedException( 'RangeException' );
+		$queryBuilder->getSPARQL();
+	}
+
 	public function testWhere() {
 		$queryBuilder = new QueryBuilder();
 		$this->assertSame(
