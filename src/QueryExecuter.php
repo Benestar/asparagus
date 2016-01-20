@@ -65,7 +65,7 @@ class QueryExecuter {
 		}
 
 		$result = $this->getResult( $query );
-		return $result['search'];
+		return $result['results'];
 	}
 
 	private function getResult( $query ) {
