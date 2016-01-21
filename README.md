@@ -183,6 +183,10 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ## Release notes
 
+### 0.4.2 (2016-01-21)
+
+* Fixed incompatible changes in `QueryExecuter`
+
 ### 0.4.1 (2016-01-21)
 
 * Fixed return value of `QueryExecuter::execute`

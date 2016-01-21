@@ -68,7 +68,7 @@ class QueryExecuter {
 		
 		// TODO also support ask queries (with key 'boolean')
 		//      https://www.w3.org/TR/rdf-sparql-json-res/
-		return $result['results']['bindings'];
+		return $result['results'];
 	}
 
 	private function getResult( $query ) {
