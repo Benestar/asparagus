@@ -24,7 +24,7 @@ class QueryExecuterTest extends \PHPUnit_Framework_TestCase {
 				$this->equalTo( 'test.example.com' ),
 				$this->equalTo( $params )
 			)
-			->will( $this->returnValue( '{"results":"~=[,,_,,]:3"}' ) );
+			->will( $this->returnValue( '{"results":{"bindings":"~=[,,_,,]:3"}}' ) );
 
 		return $http;
 	}
