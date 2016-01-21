@@ -35,7 +35,7 @@ Asparagus 0.3:
 ```js
 {
     "require": {
-        "benestar/asparagus": "~0.3"
+        "benestar/asparagus": "~0.4"
     }
 }
 ```
