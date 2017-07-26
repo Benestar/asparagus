@@ -233,6 +233,20 @@ class QueryBuilder {
 	}
 
 	/**
+	 * Adds the given graph or triple as an service condition.
+	 *
+	 * @param string|GraphBuilder $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function service( $service, $subject, $predicate = null, $object = null ) {
+		$this->graphBuilder->service( $service, $subject, $predicate, $object );
+		return $this;
+	}
+
+	/**
 	 * Adds the given expression as a filter to this query.
 	 *
 	 * @since 0.3

@@ -27,6 +27,11 @@ class GraphBuilder {
 	private $optionals = array();
 
 	/**
+	 * @var string[] list of optional expressions
+	 */
+	private $services = array();
+
+	/**
 	 * @var string[] list of filter expressions
 	 */
 	private $filters = array();
@@ -189,6 +194,21 @@ class GraphBuilder {
 		return $this;
 	}
 
+	/**
+	 * Adds the given graph or triple as an services condition.
+	 *
+	 * @param string|GraphBuilder $subject
+	 * @param string|null $predicate
+	 * @param string|null $object
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public function service( $service, $subject, $predicate = null, $object = null ) {
+		$graphBuilder = $this->getGraphBuilder( $subject, $predicate, $object );
+		$this->services[$service] = $graphBuilder->getSPARQL();
+		return $this;
+	}
+
 	private function getGraphBuilder( $subject, $predicate, $object ) {
 		if ( $subject instanceof GraphBuilder ) {
 			return $subject;
@@ -250,6 +270,7 @@ class GraphBuilder {
 		}
 
 		$sparql .= $this->formatOptionals();
+		$sparql .= $this->formatServices();
 		$sparql .= $this->formatFilters();
 		$sparql .= $this->formatUnions();
 
@@ -266,6 +287,12 @@ class GraphBuilder {
 		return implode( array_map( function( $optional ) {
 			return ' OPTIONAL {' . $optional . ' }';
 		}, $this->optionals ) );
+	}
+
+	private function formatServices() {
+		return implode( array_map( function( $name, $service ) {
+			return ' SERVICE ' . $name . ' {' . $service . ' }';
+		}, array_keys($this->services), $this->services ) );
 	}
 
 	private function formatFilters() {

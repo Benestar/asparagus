@@ -108,7 +108,7 @@ class UsageValidator {
 	 */
 	public function validate() {
 		$this->validatePrefixes();
-		$this->validateVariables();
+		// $this->validateVariables();
 	}
 
 	private function validatePrefixes() {
